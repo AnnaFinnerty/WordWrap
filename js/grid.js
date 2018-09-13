@@ -1,7 +1,8 @@
 function Grid(tilesX, tilesY, previousState){
     this.tilesX = tilesX;
     this.tilesY = tilesY;
-    this.cells = previousState ? previousState : this.empty();
+    this.cells = previousState ? this.fromState(previousState) : this.empty();
+    console.log(this.cells);
 }
 
 //create an empty grid
@@ -216,4 +217,39 @@ Grid.prototype.deactivateTile = function(x,y){
 Grid.prototype.printGrid = function(){
     console.log(this.cells);
 }
+
+//translate tiles loaded from a previous gamestate
+Grid.prototype.fromState = function (state) {
+  var cells = [];
+
+  for (var x = 0; x < this.tilesX; x++) {
+    var row = cells[x] = [];
+
+    for (var y = 0; y < this.tilesY; y++) {
+      var tile = state[x][y];
+      row.push(tile ? new Tile(tile.position, tile.value) : null);
+    }
+  }
+
+  return cells;
+};
+
+//represent the grid as an object
+Grid.prototype.serialize = function () {
+  var cellState = [];
+
+  for (var x = 0; x < this.tilesX; x++) {
+    var row = cellState[x] = [];
+
+    for (var y = 0; y < this.tilesY; y++) {
+      row.push(this.cells[x][y] ? this.cells[x][y].serialize() : null);
+    }
+  }
+
+  return {
+    tilesX: this.tilesX,
+    tilesY: this.tilesY,
+    cells: cellState
+  };
+};
 

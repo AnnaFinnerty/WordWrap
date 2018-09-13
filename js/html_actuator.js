@@ -11,6 +11,7 @@ function HTMLActuator(){
     this.current_level = document.querySelector('.current-level');
     this.level_score = document.querySelector('.level-score');
     this.best_word = document.querySelector('.best-word');
+    this.best_word_ever = document.querySelector('.best-word-ever');
     this.next_level = document.querySelector('.next-level');
     this.total_score = document.querySelector('.total-score');
     this.top_score = document.querySelector('.top-score');
@@ -38,9 +39,10 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
         self.message_container.innerHTML = data.message;
         //don't display the message if it's empty
         self.message_container.className = data.message == "" ? "message-hidden" : "message-container";
-        self.current_level.innerHTML = data.level;
+        self.current_level.innerHTML = "LEVEL"+data.level;
         self.level_score.innerHTML = data.level_score;
         self.best_word.innerHTML = data.best_word;
+        self.best_word_ever = data.best_word_ever;
         self.next_level.innerHTML = data.next_level;
         self.total_score.innerHTML = data.total_score;
         self.top_score.innerHTML = data.top_score;

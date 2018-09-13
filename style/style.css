@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
 body {
     margin: 0;
     padding: 0;
@@ -43,8 +45,9 @@ h1:last-child{
     flex-wrap: nowrap;
 }
 
-.current-score, .top-score{
-    background: lightgray;
+.total-score, .top-score, .best-word, .best-word-ever, .next-level{
+    background: cadetblue;
+    color: aliceblue;
     margin: 10%;
     width: 80%;
 }
@@ -56,6 +59,10 @@ h1:last-child{
     height: 15vh;
     display: inline-flex;
     flex-wrap: nowrap;
+}
+
+.level-score, .current-level{
+    color: deepskyblue;
 }
 
 .board-container{
