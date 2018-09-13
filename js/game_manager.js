@@ -324,6 +324,7 @@ GameManager.prototype.tileDeselect = function(data){
 GameManager.prototype.resetSelection = function(){
     this.selected_word = "";
     this.active_tile = null;
+    this.selected_tiles = [];
 }
 
 GameManager.prototype.resetMessage = function(){
