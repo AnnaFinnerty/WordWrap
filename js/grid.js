@@ -166,7 +166,6 @@ Grid.prototype.checkAdjoiningTiles = function(tile1,tile2){
 Grid.prototype.moveTileinGrid = function(tile, newPos){
     this.cells[tile.x][tile.y] = null;
     this.cells[newPos.x][newPos.y] = tile;
-    //console.log(this.cells);
 }
 
 //inserts a tile to the grid
@@ -189,6 +188,15 @@ Grid.prototype.selectTile = function(x,y, pos){
     this.cells[x][y].updateSelected(true,pos);
     this.cells[x][y].updateActive(true);
     console.log(this.cells[x][y]);
+}
+
+Grid.prototype.deselectAll = function(){
+    this.eachCell(function(x,y,tile){
+        if(tile){
+            tile.updateActive(false);
+            tile.updateSelected(false, null);
+        }
+    });
 }
 
 //updates code for deselected tile

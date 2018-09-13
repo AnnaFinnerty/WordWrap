@@ -11,18 +11,19 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.puzzleMode = false;
     
     this.message = "";
+    this.tips = "Find words to clear letters before the board fills up."
     
     this.max_counter = 500;
     this.counter = 0;
     //this.gravityOn = false;
     
     this.tilesAcross = 7;
-    this.tilesUp = 10;
+    this.tilesUp = 9;
     this.inputManager = new InputManager;
     this.htmlActuator = new HTMLActuator;
     this.wordCheck = new WordCheck;
     
-    this.tileSize = window.innerHeight/this.tilesUp;
+    this.tileSize = (window.innerHeight*.9)/this.tilesUp;
     this.startTiles = 35;
     this.active_tile = null;
     this.selected_tiles = [];
@@ -35,10 +36,11 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     
     this.inputManager.on("move", this.move.bind(this));
     this.inputManager.on("pause", this.pauseToggle.bind(this));
-    this.inputManager.on("submit", this.manualSelectHelper.bind(this));
+    this.inputManager.on("submit", this.manualSubmitHelper.bind(this));
     this.inputManager.on("newChallenge", this.newChallenge.bind(this));
     this.inputManager.on("newPuzzle", this.newPuzzle.bind(this));
     this.htmlActuator.on("select", this.select.bind(this));
+    this.htmlActuator.on("close_message", this.resetMessage.bind(this));
     
     this.screenSetUp();
     var start_message = "Click adjoining tiles to make words.<br> Hurry before the screen fills up!";
@@ -71,7 +73,7 @@ GameManager.prototype.gameSetUp = function(message,puzzlemode){
     
 }
 
-//new challenge game
+//advance to the next level
 GameManager.prototype.newLevel = function(){
     console.log("new level!");
     this.level += 1;
@@ -98,20 +100,9 @@ GameManager.prototype.addStartTiles = function(){
             this.addRandomTile();
         }
     }
-    //this.testTiles();
 }
 
-//add tiles for testing scenarios
-GameManager.prototype.testTiles = function(){
-    //used for testings tiles. otherwise addRandomTiles should be used to start
-    var tile1 = new Tile({x:0,y:9},"A",2);
-    this.grid.insertTile(tile1);
-    var tile2 = new Tile({x:0,y:0},"B",2);
-    this.grid.insertTile(tile2);
-    var tile3 = new Tile({x:1,y:0},"C",2);
-    this.grid.insertTile(tile3);
-}
-
+//fill the whole grid (for puzzle mode)
 GameManager.prototype.fillGrid = function(){
     for(var x=0;x<this.tilesAcross;x++){
        for(var y=0;y<this.tilesUp;y++){
@@ -122,10 +113,10 @@ GameManager.prototype.fillGrid = function(){
     }
 }
 
-//generate a random tile
+//generate a random tile anywhere on the board
 GameManager.prototype.addRandomTile = function(){
     //add a check if tiles are available in grid
-    var letter = this.randomLetter();
+    var letter = this.randomStartLetter();
     var tile = new Tile(this.grid.randomAvailableCell(),letter,this.pointValueMap(letter));
     this.grid.insertTile(tile);
 }
@@ -149,7 +140,16 @@ GameManager.prototype.addRandomTileTop = function(){
     //this.grid.printGrid();
 }
 
-//generate a random letter for a tile
+//generate a random letter for a starting tile
+GameManager.prototype.randomStartLetter = function(){
+    var temp_letters = ['A','B','D','E','H','N','U','T'];
+    var letters = ['A','A','A','B','B','C','D','D','E','E','E','E','F','G','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','R','R','S','S','T','T','U','U','U','V','W','Y','Z'];
+    var r = Math.floor(Math.random()*letters.length);
+    var newLetter = letters[r];
+    return newLetter;
+}
+
+//generate a random letter for an in-game tile
 GameManager.prototype.randomLetter = function(){
     var temp_letters = ['A','B','D','E','H','N','U','T'];
     var letters = ['A','A','A','B','B','C','C','D','D','E','E','E','E','F','F','G','G','H','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','P','Q','R','R','S','S','S','T','T','T','U','U','U','V','W','X','Y','Y','Y','Z'];
@@ -185,6 +185,172 @@ GameManager.prototype.update = function(){
         window.requestAnimationFrame(function(){
                 self.actuate();
             })
+    }
+}
+
+//<-- not working yet. No arrow functions.
+//selected or highlight a new tile (with arrow keys);
+GameManager.prototype.move = function(direction){
+    console.log("arrow moving!");
+    console.log(direction);
+}
+
+//<-- function should be broadened, with the help of a click helper function, so it can take input from keystrokes too
+//select or highlight a new tile (with mouse click);
+GameManager.prototype.select = function(data){
+    console.log("tile selected: "+data.x+", "+data.y);
+    
+    var selected_status = this.grid.selectionStatus(data.x,data.y);
+    
+    if(!selected_status){
+        
+        var pos = this.selected_tiles.length ? this.selected_tiles.length : 0;
+        
+        //if the tile is selected, determine if there is already an active tile
+        if(this.active_tile){
+            
+            //check both the currently active tile and the first select tile to see if the new tile connects
+            var check1 = this.grid.checkAdjoiningTiles(this.active_tile,data);
+            console.log("check1:  " + check1);
+            var check2 = this.grid.checkAdjoiningTiles(this.selected_tiles[0],data);
+            console.log("check2:  " + check2);
+            if(check1 || check2){
+                this.tileSelect(data,pos);
+            }
+        }else{
+            
+            //if there's no active tile, this is now the active tile
+            this.tileSelect(data,pos);
+        }
+    } else {
+        this.tileDeselect(data);
+    }
+    if(this.selected_tiles.length>2 && this.autoWordCheck){
+        this.checkWord(this.selected_word);
+    }
+    this.actuate();
+    //this.grid.printGrid();
+}
+
+// a helper for manually entering words when AutoCheck is off. 
+// can't figure out how to bind checkWord directly to emit path (and pass in word too)
+GameManager.prototype.manualSubmitHelper = function(){
+    var word = this.selected_word;
+    this.checkWord(word);
+}
+
+//a promise to return the value generated by wordCheck functions
+GameManager.prototype.checkWord = function(word){
+    console.log("checking:  " + word);
+    var self = this;
+    var word_test = this.wordCheck.checkWord(word);
+    var promise = new Promise(function(resolve,reject){
+        var test = self.wordCheck.APIcheck(word);
+        if(test){
+            resolve(test);
+        } else {
+            reject(test)
+        }
+    })
+    
+    promise.then(
+        function(result){self.addToScore(result)},
+        function(error){console.log(error)}
+    );
+}
+
+//a word has been successfully found, so update the score
+GameManager.prototype.addToScore = function(result){
+    if(result == 1){
+        var word = this.selected_word;
+        var word_points = this.sumPoints(word);
+        if(word_points > this.best_word_points){
+            this.best_word_points = word_points;
+            this.best_word = word;
+        }
+        this.level_score += word_points;
+        this.total_score += word_points;
+        for(var i=0;i<this.selected_tiles.length;i++){
+            var data = this.selected_tiles[i];
+            this.grid.removeTile(data.x,data.y);
+        }
+        this.resetSelection();
+        
+        //if the level score is above next level, move to the next level
+        if(this.level_score > this.next_level && !this.puzzleMode){
+            this.newLevel();
+        }
+    } else {
+        this.message = "hey, that's not a word!";
+        this.resetSelection();
+        this.grid.deselectAll();
+    }
+    this.actuate();
+}
+
+//process a selected tile
+GameManager.prototype.tileSelect = function(data,pos){
+    this.grid.selectTile(data.x,data.y,pos);
+    this.selected_tiles.push(data);
+    this.active_tile = data;
+    var new_letter = this.grid.cells[data.x][data.y].value;
+    this.selected_word = this.selected_word + new_letter;
+    console.log(this.selected_tiles);
+}
+
+GameManager.prototype.tileDeselect = function(data){
+    console.log("deselect");
+    var pos = this.grid.cells[data.x][data.y].selectionPosition;
+    if(pos == 0){
+        this.resetSelection();
+        this.grid.deselectAll();
+    }
+    this.active_tile = null;
+    this.grid.deactivateTile(data.x,data.y);
+    this.grid.deselectTile(data.x,data.y);
+    
+    this.selected_word = this.selected_word.substr(0,pos);
+    
+    for(var x = pos; x<this.selected_tiles.length;x++){
+        var tile = this.selected_tiles[x];
+        console.log("deselect" + tile);
+        this.grid.deselectTile(tile.x,tile.y);
+        this.grid.deactivateTile(tile.x,tile.y);
+    }
+    this.selected_tiles.splice(pos,this.selected_tiles.length-1);
+    console.log(this.selected_tiles);
+}
+
+GameManager.prototype.resetSelection = function(){
+    this.selected_word = "";
+    this.active_tile = null;
+}
+
+GameManager.prototype.resetMessage = function(){
+    this.message = "";
+    this.actuate();
+}
+
+//new challenge game
+GameManager.prototype.newChallenge = function(){
+    console.log("starting new challenge game!");
+    this.puzzleMode = false;
+    this.gameSetUp("NEW GAME",false);
+}
+
+//new puzzle game
+GameManager.prototype.newPuzzle = function(){
+    console.log("starting new puzzle game!");
+    this.puzzleMode = true;
+    this.gameSetUp("NEW GAME",true);
+}
+
+//ends the game
+GameManager.prototype.endGame = function(){
+    if(!this.gameOver){
+       console.log("game over, man");
+        this.gameOver = true;
+        this.actuate(); 
     }
 }
 
@@ -232,160 +398,6 @@ GameManager.prototype.pauseToggle = function(){
     }
 }
 
-//selected or highlight a new tile (with arrow keys);
-GameManager.prototype.move = function(direction){
-    console.log("arrow moving!");
-    console.log(direction);
-}
-
-//select or highlight a new tile (with mouse click);
-GameManager.prototype.select = function(data){
-    console.log("tile selected: "+data.x+", "+data.y);
-    
-    var selected_status = this.grid.selectionStatus(data.x,data.y);
-    
-    if(!selected_status){
-        
-        var pos = this.selected_tiles.length ? this.selected_tiles.length : 0;
-        
-        //if the tile is selected, determine if there is already an active tile
-        if(this.active_tile){
-            
-            //check both the currently active tile and the first select tile to see if the new tile connects
-            var check1 = this.grid.checkAdjoiningTiles(this.active_tile,data);
-            console.log("check1:  " + check1);
-            var check2 = this.grid.checkAdjoiningTiles(this.selected_tiles[0],data);
-            console.log("check2:  " + check2);
-            if(check1 || check2){
-                this.tileSelect(data,pos);
-            }
-        }else{
-            
-            //if there's no active tile, this is now the active tile
-            this.tileSelect(data,pos);
-        }
-    } else {
-        this.tileDeselect(data);
-    }
-    if(this.selected_tiles.length>2 && this.autoWordCheck){
-        this.checkWord(this.selected_word);
-    }
-    this.actuate();
-    //this.grid.printGrid();
-}
-
-GameManager.prototype.manualSelectHelper = function(){
-    var word = this.selected_word;
-    this.checkWord(word);
-}
-
-GameManager.prototype.checkWord = function(word){
-    console.log("checking:  " + word);
-    var self = this;
-    var word_test = this.wordCheck.checkWord(word);
-    var promise = new Promise(function(resolve,reject){
-        var test = self.wordCheck.APIcheck(word);
-        if(test){
-            resolve(test);
-        } else {
-            reject(test)
-        }
-    })
-    
-    promise.then(
-        function(result){return self.addToScore(result)},
-        function(error){console.log(error)}
-    );
-}
-
-GameManager.prototype.addToScore = function(result){
-    if(result == 1){
-        var word = this.selected_word;
-        var word_points = this.sumPoints(word);
-        if(word_points > this.best_word_points){
-            this.best_word_points = word_points;
-            this.best_word = word;
-        }
-        this.level_score += word_points;
-        this.total_score += word_points;
-        for(var i=0;i<this.selected_tiles.length;i++){
-            var data = this.selected_tiles[i];
-            this.grid.removeTile(data.x,data.y);
-        }
-        this.resetSelection();
-        
-        //if the level score is above next level, move to the next level
-        if(this.level_score > this.next_level && !this.puzzleMode){
-            this.newLevel();
-        }
-    } else {
-        this.message = "hey, that's not a word!";
-        this.resetSelection();
-    }
-    this.actuate();
-}
-
-//process a selected tile
-GameManager.prototype.tileSelect = function(data,pos){
-    this.grid.selectTile(data.x,data.y,pos);
-    this.selected_tiles.push(data);
-    this.active_tile = data;
-    var new_letter = this.grid.cells[data.x][data.y].value;
-    this.selected_word = this.selected_word + new_letter;
-    console.log(this.selected_tiles);
-}
-
-GameManager.prototype.tileDeselect = function(data){
-    console.log("deselect");
-    var pos = this.grid.cells[data.x][data.y].selectionPosition;
-    if(pos == 0){
-        this.resetSelection();
-    }
-    this.active_tile = null;
-    this.grid.deactivateTile(data.x,data.y);
-    this.grid.deselectTile(data.x,data.y);
-    
-    this.selected_word = this.selected_word.substr(0,pos);
-    
-    for(var x = pos; x<this.selected_tiles.length;x++){
-        var tile = this.selected_tiles[x];
-        console.log("deselect" + tile);
-        this.grid.deselectTile(tile.x,tile.y);
-        this.grid.deactivateTile(tile.x,tile.y);
-    }
-    this.selected_tiles.splice(pos,this.selected_tiles.length-1);
-    console.log(this.selected_tiles);
-}
-
-GameManager.prototype.resetSelection = function(){
-    this.selected_tiles = [];
-    this.selected_word = "";
-    this.active_tile = null;
-}
-
-//new challenge game
-GameManager.prototype.newChallenge = function(){
-    console.log("starting new challenge game!");
-    this.puzzleMode = false;
-    this.gameSetUp("NEW GAME",false);
-}
-
-//new puzzle game
-GameManager.prototype.newPuzzle = function(){
-    console.log("starting new puzzle game!");
-    this.puzzleMode = true;
-    this.gameSetUp("NEW GAME",true);
-}
-
-//ends the game
-GameManager.prototype.endGame = function(){
-    if(!this.gameOver){
-       console.log("game over, man");
-        this.gameOver = true;
-        this.actuate(); 
-    }
-}
-
 //map of tile values
 GameManager.prototype.pointValueMap = function(letter){
     var map = {
@@ -419,7 +431,7 @@ GameManager.prototype.pointValueMap = function(letter){
     return map[letter];
 }
 
-
+//sum points
 GameManager.prototype.sumPoints = function(word){
     var sum = 0;
     for(var i = 0; i<word.length;i++){
@@ -429,8 +441,6 @@ GameManager.prototype.sumPoints = function(word){
     return sum;
 }
 
-
-
 // set up screen and sizes on intial load and resize
 GameManager.prototype.screenSetUp = function(){
     var sidebar = document.querySelector(".sidebar-container");
@@ -438,8 +448,12 @@ GameManager.prototype.screenSetUp = function(){
     sidebar.style.height = window.innerHeight + "px";
     var board = document.querySelector(".board-container");
     board.style.width = window.innerWidth*.7+ "px";
-    board.style.height = window.innerHeight + "px";
+    board.style.height = window.innerHeight*.8 + "px";
     var tile_container = document.querySelector(".tile-container");
-    tile_container.style.width = window.innerWidth*.7+ "px";
-    tile_container.style.height = window.innerHeight + "px";
+    tile_container.style.width = this.tileSize*this.tilesAcross+ "px";
+    var tile_container_translate = ((window.innerWidth*.8) - (this.tileSize*this.tilesAcross))*.25;
+    tile_container.style.height = window.innerHeight*.8 + "px";
+    tile_container.style.transform = "translate("+tile_container_translate+"px,0)";
+    var message_container = document.querySelector(".message-container");
+    message_container.style.transform = "translate(30vw,-90vh)";
 }

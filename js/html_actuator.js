@@ -1,8 +1,13 @@
 function HTMLActuator(){
+    var self = this;
     this.events = {};
     this.tile_container = document.querySelector('.tile-container');
     this.word_container = document.querySelector('.word-container');
     this.message_container = document.querySelector('.message-container');
+    this.message_container.addEventListener("click",function(){
+        console.log("clicking the fucking message");
+        self.click();
+    })
     this.current_level = document.querySelector('.current-level');
     this.level_score = document.querySelector('.level-score');
     this.best_word = document.querySelector('.best-word');
@@ -10,7 +15,7 @@ function HTMLActuator(){
     this.total_score = document.querySelector('.total-score');
     this.top_score = document.querySelector('.top-score');
     this.score = 0;
-    this.tileSize = window.innerWidth/12;
+    this.tileSize = window.innerHeight/10;
 }
 
 HTMLActuator.prototype.actuate = function(grid,data,tileSize){
@@ -23,7 +28,7 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
             grid.cells.forEach(function(column){
             column.forEach(function(cell){
                 if(cell){
-                    self.addTile(cell);
+                    self.addTile(cell,tileSize);
                 }
             })
           })  
@@ -31,7 +36,9 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
         
         self.word_container.innerHTML = data.selected_word;
         self.message_container.innerHTML = data.message;
-        self.current_level.innerHTML = "LEVEL: " + data.level;
+        //don't display the message if it's empty
+        self.message_container.className = data.message == "" ? "message-hidden" : "message-container";
+        self.current_level.innerHTML = data.level;
         self.level_score.innerHTML = data.level_score;
         self.best_word.innerHTML = data.best_word;
         self.next_level.innerHTML = data.next_level;
@@ -46,7 +53,7 @@ HTMLActuator.prototype.clearContainer = function(container){
     }
 }
 
-HTMLActuator.prototype.addTile = function(tile){
+HTMLActuator.prototype.addTile = function(tile, tileSize){
     var self = this;
     var wrapper = document.createElement("div");
     var inner = document.createElement("div");
@@ -60,9 +67,9 @@ HTMLActuator.prototype.addTile = function(tile){
     wrapper.id = "tile"+tile.x + "-" + tile.y;
     inner.className = "letter";
     inner.innerHTML = tile.value;
-    wrapper.style.width = this.tileSize + "px";
-    wrapper.style.height = this.tileSize + "px";
-    wrapper.style.transform = "translate("+position.x*this.tileSize+"px,"+(position.y-1)*this.tileSize+"px)";
+    wrapper.style.width = tileSize + "px";
+    wrapper.style.height = tileSize + "px";
+    wrapper.style.transform = "translate("+position.x*tileSize+"px,"+(position.y-1)*tileSize+"px)";
     wrapper.appendChild(inner);
     this.tile_container.appendChild(wrapper);
     var added_wrapped = document.querySelector("#tile"+tile.x + "-" + tile.y);
@@ -92,6 +99,11 @@ HTMLActuator.prototype.emit = function (event, data) {
     });
   }
 };
+
+HTMLActuator.prototype.click = function(){
+    event.preventDefault();
+    this.emit("close_message");
+}
 
 HTMLActuator.prototype.getCoordsFromID = function(id){
     var split1 = id.split("tile");

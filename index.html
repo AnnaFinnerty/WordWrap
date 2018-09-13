@@ -5,7 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>WordWrap</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="style.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="style/style.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="style/glyphicons.css" />
+    <link rel="icon" type="image/x-icon" href="icon.ico" />
 </head>
 <body>
    <div class="main-body-container">
@@ -15,31 +17,52 @@
                  <h1 class="title">/Wrap</h1>
             </div>
             <div class="score-container">
-                <div class="current-level">1</div>
-                <div class="level-score">0</div>
-                <div class="best-word"></div>
-                <div class="next-level">0</div>
-                <div class="total-score">0</div>
-                <div class="top-score">0</div>
+               <div class="info-box">
+                   <div class="label">NEXT<br>LEVEL</div>
+                   <div class="next-level">0</div>
+               </div>
+               <div class="info-box">
+                   <div class="label">BEST<br>WORD</div>
+                   <div class="best-word"></div>
+               </div>
+               <div class="info-box">
+                   <div class="label">TOTAL<br>SCORE</div>
+                   <div class="total-score">0</div>
+               </div>
+               <div class="info-box">
+                   <div class="label">TOP<br>SCORE</div>
+                   <div class="top-score">0</div>
+               </div>
             </div>
             <div class="button-container">
                 <button class="new-challenge-button">Challenge</button>
                 <button class="new-puzzle-button">Puzzle</button>
                 <button class="pause-button">Pause</button>
             </div>
-            <div class="instruction">Make new words before the blocks fill the screen.</div>
+            <div class="tips"></div>
         </div>
 
         <div class="game-container">
-          <div class="board-container">
-          <div class="word-container"></div>
-          <div class="message-container"></div>
+          <div class="header">
+              <div class = "inline-flex">
+                   <div class="label">LEVEL</div>
+                   <div class="current-level">1</div>
+                   
+               </div>
+              <div class="word-container"></div>
+              <div class="level-score">0</div>
           </div>
-          <div class="tile-container"></div>
+          <div class="board-container">
+          
+              <div class="tile-container"></div>
+          
+          
+          </div>
           
         </div>
     </div>
     <div class="footer"></div>
+    <div class="message-container"></div>
     
     <script src="js/word_check.js"></script>
     <script src="js/storage_manager.js"></script>
