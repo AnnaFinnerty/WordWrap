@@ -4,6 +4,7 @@ function WordCheck(word){
     return this.wordFound;
 }
 
+// not being used!
 WordCheck.prototype.checkWord = function(word){
     /*
     var self = this;
@@ -29,16 +30,19 @@ WordCheck.prototype.checkWord = function(word){
 
 WordCheck.prototype.APIcheck = function(word){
     var self = this;
+    // Necessary to bypass the 'Access-Control-Allow-Origin' error
+    const proxyURL = "https://cors.io/?"; 
     var response;
     const getUrl = 'https://api.datamuse.com/words?sp='+word+'';
     try{
         // this API isn't returning great results. Only use it if nothing better is found
-      response = fetch(getUrl)
+      response = fetch(proxyURL + getUrl)
         .then(response => {
             return response.json();
         })
         .then(data => {
             console.log(data[0]);
+            console.log(data[1]);
             if(data[0].score > 500){
                 return 1;
             } else {
@@ -52,6 +56,7 @@ WordCheck.prototype.APIcheck = function(word){
     return response
 }
 
+//not being used!
 WordCheck.prototype.tempCheck = function(word){
     var tempWords = ['AND','BUT','THE','HUE','END','NET','ANT','TAN'];
     for(var i=0;i<tempWords.length;i++){
