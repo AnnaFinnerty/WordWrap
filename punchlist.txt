@@ -1,0 +1,5 @@
++ add speed up button
++ add ongoing wordlist
++ add break screen between levels
++ tips/instructions
++ shifting -- is this a core game dynamic?

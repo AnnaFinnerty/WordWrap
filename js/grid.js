@@ -146,16 +146,18 @@ Grid.prototype.checkDistance = function(tile, direction){
 Grid.prototype.checkAdjoiningTiles = function(tile1,tile2){
     var xDiff = Math.abs(tile1.x-tile2.x);
     var yDiff = Math.abs(tile1.y-tile2.y);
-    if( xDiff == 1 || yDiff == 1){
-        console.log("adjoining!");
+    if( (xDiff == 1 && yDiff <2) || (yDiff == 1 && xDiff < 2)){
+        console.log("adjoining 1!");
+        console.log(xDiff);
+        console.log(yDiff);
         return true
     }
     if( tile1.x == 0 && tile2.x == this.tilesX-1){
-        console.log("adjoining!");
+        console.log("adjoining 2!");
         return true
     }
     if( tile2.x == 0 && tile1.x == this.tilesX-1){
-        console.log("adjoining!");
+        console.log("adjoining 3!");
         return true
     }
     
