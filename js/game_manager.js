@@ -140,23 +140,7 @@ GameManager.prototype.addRandomTileTop = function(){
     //this.grid.printGrid();
 }
 
-//generate a random letter for a starting tile
-GameManager.prototype.randomStartLetter = function(){
-    var temp_letters = ['A','B','D','E','H','N','U','T'];
-    var letters = ['A','A','A','B','B','C','D','D','E','E','E','E','F','G','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','R','R','S','S','T','T','U','U','U','V','W','Y','Z'];
-    var r = Math.floor(Math.random()*letters.length);
-    var newLetter = letters[r];
-    return newLetter;
-}
 
-//generate a random letter for an in-game tile
-GameManager.prototype.randomLetter = function(){
-    var temp_letters = ['A','B','D','E','H','N','U','T'];
-    var letters = ['A','A','A','B','B','C','C','D','D','E','E','E','E','F','F','G','G','H','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','P','Q','R','R','S','S','S','T','T','T','U','U','U','V','W','X','Y','Y','Y','Z'];
-    var r = Math.floor(Math.random()*letters.length);
-    var newLetter = letters[r];
-    return newLetter;
-}
 
 //build html
 GameManager.prototype.actuate = function(){
@@ -397,6 +381,24 @@ GameManager.prototype.pauseToggle = function(){
         this.message = "PAUSED";
         this.actuate();
     }
+}
+
+//generate a random letter for a starting tile
+GameManager.prototype.randomStartLetter = function(){
+    var temp_letters = ['A','B','D','E','H','N','U','T'];
+    var letters = ['A','A','A','B','B','C','D','D','E','E','E','E','F','G','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','R','R','S','S','T','T','U','U','U','V','W','Y','Z'];
+    var r = Math.floor(Math.random()*letters.length);
+    var newLetter = letters[r];
+    return newLetter;
+}
+
+//generate a random letter for an in-game tile
+GameManager.prototype.randomLetter = function(){
+    var temp_letters = ['A','B','D','E','H','N','U','T'];
+    var letters = ['A','A','A','B','B','C','C','D','D','E','E','E','E','F','F','G','G','H','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','P','Q','R','R','S','S','S','T','T','T','U','U','U','V','W','X','Y','Y','Y','Z'];
+    var r = Math.floor(Math.random()*letters.length);
+    var newLetter = letters[r];
+    return newLetter;
 }
 
 //map of tile values
