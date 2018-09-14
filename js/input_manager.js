@@ -34,13 +34,15 @@ InputManager.prototype.listen = function(){
     83: 2, // S
     65: 3, // A
     80: 4, //P -- paused 
-    32: 5 //space -- submit/hold
+    32: 5, //space -- submit/hold   
   };
     
     //respond to button presses
     this.bindButtonPress(".pause-button",this.pause);
     this.bindButtonPress(".new-challenge-button",this.newChallenge);
     this.bindButtonPress(".new-puzzle-button",this.newPuzzle);
+    this.bindButtonPress(".arrow-right",this.shiftRight);
+    this.bindButtonPress(".arrow-left",this.shiftLeft);
     
     // Respond to direction keys
     document.addEventListener("keydown", function (event) {
@@ -48,10 +50,16 @@ InputManager.prototype.listen = function(){
                         event.shiftKey;
         var mapped    = map[event.which];
 
-        if (!modifiers) {
           if (mapped !== undefined) {
               event.preventDefault();
               switch(mapped){
+                  //<-- ideally shift should be changed to other keys      
+                  case 1:
+                      self.shiftRight();
+                      break
+                  case 3:
+                      self.shiftLeft();
+                      break
                   case 4:
                       self.pause();
                       break
@@ -63,7 +71,7 @@ InputManager.prototype.listen = function(){
                       break
               }
           }
-        }
+        
     });
 }
 
@@ -92,6 +100,16 @@ InputManager.prototype.pause = function(){
 InputManager.prototype.submit = function(){
     event.preventDefault();
    this.emit("submit");
+}
+
+InputManager.prototype.shiftRight = function(){
+   event.preventDefault();
+   this.emit("shiftRight");
+}
+
+InputManager.prototype.shiftLeft = function(){
+   event.preventDefault();
+   this.emit("shiftLeft");
 }
 
 InputManager.prototype.newChallenge = function(){

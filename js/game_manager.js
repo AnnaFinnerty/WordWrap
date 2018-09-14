@@ -41,6 +41,8 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.inputManager.on("move", this.move.bind(this));
     this.inputManager.on("pause", this.pauseToggle.bind(this));
     this.inputManager.on("submit", this.manualSubmitHelper.bind(this));
+    this.inputManager.on("shiftLeft", this.shiftGridLeft.bind(this));
+    this.inputManager.on("shiftRight", this.shiftGridRight.bind(this));
     this.inputManager.on("newChallenge", this.newChallenge.bind(this));
     this.inputManager.on("newPuzzle", this.newPuzzle.bind(this));
     this.htmlActuator.on("select", this.select.bind(this));
@@ -192,7 +194,7 @@ GameManager.prototype.addRandomTileTop = function(){
     //this.grid.printGrid();
 }
 
-//builds html
+//sends data to and builds html
 GameManager.prototype.actuate = function(){
     
     // Clear the state when the game is over (game over only, not win)
@@ -352,7 +354,7 @@ GameManager.prototype.checkWord = function(word){
     );
 }
 
-//a word has been successfully found, so update the score
+//a word has been successfully found, so update the score and other data
 GameManager.prototype.addToScore = function(result){
     if(result == 1){
         var word = this.selected_word;
@@ -383,6 +385,18 @@ GameManager.prototype.addToScore = function(result){
         this.resetSelection();
         this.grid.deselectAll();
     }
+    this.actuate();
+}
+
+GameManager.prototype.shiftGridLeft = function(){
+    console.log("shifting left");
+    this.grid.shiftLeft();
+    this.actuate();
+}
+
+GameManager.prototype.shiftGridRight = function(){
+    console.log("shifting right");
+    this.grid.shiftRight();
     this.actuate();
 }
 
@@ -535,7 +549,7 @@ GameManager.prototype.screenSetUp = function(){
     tile_container.style.width = this.tileSize*this.tilesAcross+ "px";
     var tile_container_translate = ((window.innerWidth*.8) - (this.tileSize*this.tilesAcross))*.25;
     tile_container.style.height = window.innerHeight*.8 + "px";
-    tile_container.style.transform = "translate("+tile_container_translate+"px,0)";
+    //tile_container.style.transform = "translate("+tile_container_translate+"px,0)";
     var message_container = document.querySelector(".message-container");
     message_container.style.transform = "translate(30vw,-90vh)";
 }

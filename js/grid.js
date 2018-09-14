@@ -213,6 +213,44 @@ Grid.prototype.deactivateTile = function(x,y){
     this.cells[x][y].updateActive(false);
 }
 
+Grid.prototype.shiftLeft = function(){
+    var self = this;
+    console.log("Shift left!");
+    console.log(this.cells);
+    var new_grid = [];
+    var column_to_shift = this.cells[0];
+    for(var i = 1; i< this.tilesX;i++){
+        new_grid.push(this.cells[i])
+    }
+    new_grid.push(column_to_shift);
+    this.cells = new_grid;
+    this.eachCell(function(x,y,tile){
+        if(tile){
+            tile.moveLeft(self.tilesX);
+        }
+    });
+    console.log(new_grid);
+}
+
+Grid.prototype.shiftRight = function(){
+    var self = this;
+    console.log("Shift right!");
+    console.log(this.cells);
+    var new_grid = [];
+    var column_to_shift = this.cells[this.tilesX-1];
+    new_grid.push(column_to_shift);
+    for(var i = 0; i< this.tilesX-1;i++){
+        new_grid.push(this.cells[i])
+    }
+    this.cells = new_grid;
+    this.eachCell(function(x,y,tile){
+        if(tile){
+            tile.moveRight(self.tilesX);
+        }
+    });
+    console.log(new_grid);
+}
+
 //prints the whole grid in console for testing
 Grid.prototype.printGrid = function(){
     console.log(this.cells);
