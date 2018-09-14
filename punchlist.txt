@@ -1,5 +1,11 @@
-+ add speed up button
-+ add ongoing wordlist
+Doing
++ remove common path between newLevel/Game Setup (to prevent interference with local storage manager)
 + add break screen between levels
 + tips/instructions
 + shifting -- is this a core game dynamic?
+
+
+Done
+- add speed up button
+- fix tile selection bug (any tile select after partial deselect)
+- implement ongoing wordlist
