@@ -81,6 +81,14 @@ h1:last-child{
     background: beige;
 }
 
+.arrow-right,.arrow-left{
+    background: transparent;
+    border: none;
+    font-size: 4.5vh;
+    padding: 0;
+    margin: 0;
+}
+
 .tile{
     position: absolute;
     display: block;
@@ -136,8 +144,8 @@ h1:last-child{
     height: 5vh;
 }
 .word-container{
-    /*temp margin 4 pics*/
-    margin-left: 15vw;
+    /*temp margin 4 pics
+    margin-left: 15vw;*/
     width: 40vw;
     height: 15vh;
     font-size: 13vh;

@@ -45,9 +45,9 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
             var button = document.createElement("button");
             button.innerHTML = "CONTINUE"
         }
-        //temp for pics!
-        //self.current_level.innerHTML = "LEVEL"+data.level;
-        //self.level_score.innerHTML = data.level_score;
+        //remove for pics!
+        self.current_level.innerHTML = "LEVEL"+data.level;
+        self.level_score.innerHTML = data.level_score;
         self.best_word.innerHTML = data.best_word;
         self.best_word_ever = data.best_word_ever;
         self.next_level.innerHTML = data.next_level;
