@@ -53,7 +53,6 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
         self.next_level.innerHTML = data.next_level;
         self.total_score.innerHTML = data.total_score;
         self.top_score.innerHTML = data.top_score;
-        self.word_list.innerHTML = data.word_list;
     })
 }
 

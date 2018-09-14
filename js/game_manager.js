@@ -488,7 +488,7 @@ GameManager.prototype.randomStartLetter = function(){
 //generate a random letter for an in-game tile
 GameManager.prototype.randomLetter = function(){
     var temp_letters = ['A','B','D','E','H','N','U','T'];
-    var letters = ['A','A','A','B','B','C','C','D','D','E','E','E','E','F','F','G','G','H','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','P','Q','R','R','S','S','S','T','T','T','U','U','U','V','W','X','Y','Y','Y','Z'];
+    var letters = ['A','A','A','A','B','B','C','C','D','D','E','E','E','E','E','F','F','G','G','H','H','I','I','I','I','J','K','L','L','M','M','N','N','O','O','O','O','P','P','Q','R','R','S','S','S','T','T','T','U','U','U','U','V','W','X','Y','Y','Y','Z'];
     var r = Math.floor(Math.random()*letters.length);
     var newLetter = letters[r];
     return newLetter;

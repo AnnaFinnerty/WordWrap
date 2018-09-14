@@ -3,7 +3,7 @@
 body {
     margin: 0;
     padding: 0;
-    overflow: scroll;
+    overflow: hidden;
     background: lightblue;
     display: block;
     font-family: "Montserrat", Arial, sans-serif;
