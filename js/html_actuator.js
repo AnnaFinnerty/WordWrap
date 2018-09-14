@@ -15,6 +15,7 @@ function HTMLActuator(){
     this.next_level = document.querySelector('.next-level');
     this.total_score = document.querySelector('.total-score');
     this.top_score = document.querySelector('.top-score');
+    this.word_list = document.querySelector('.word-list');
     this.score = 0;
     this.tileSize = window.innerHeight/10;
 }
@@ -25,7 +26,7 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
     
     window.requestAnimationFrame(function(){
         self.clearContainer(self.tile_container);
-        if(!data.paused){
+        if(!data.paused &&!data.levelUp){
             grid.cells.forEach(function(column){
             column.forEach(function(cell){
                 if(cell){
@@ -39,13 +40,20 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
         self.message_container.innerHTML = data.message;
         //don't display the message if it's empty
         self.message_container.className = data.message == "" ? "message-hidden" : "message-container";
-        self.current_level.innerHTML = "LEVEL"+data.level;
-        self.level_score.innerHTML = data.level_score;
+        
+        if(data.levelUp){
+            var button = document.createElement("button");
+            button.innerHTML = "CONTINUE"
+        }
+        //temp for pics!
+        //self.current_level.innerHTML = "LEVEL"+data.level;
+        //self.level_score.innerHTML = data.level_score;
         self.best_word.innerHTML = data.best_word;
         self.best_word_ever = data.best_word_ever;
         self.next_level.innerHTML = data.next_level;
         self.total_score.innerHTML = data.total_score;
         self.top_score.innerHTML = data.top_score;
+        self.word_list.innerHTML = data.word_list;
     })
 }
 
@@ -105,6 +113,21 @@ HTMLActuator.prototype.emit = function (event, data) {
 HTMLActuator.prototype.click = function(){
     event.preventDefault();
     this.emit("close_message");
+}
+
+HTMLActuator.prototype.continue = function(){
+    event.preventDefault();
+    this.emit("continue");
+}
+
+HTMLActuator.prototype.newPuzzle = function(){
+    event.preventDefault();
+    this.emit("new_puzzle");
+}
+
+HTMLActuator.prototype.newChallenge = function(){
+    event.preventDefault();
+    this.emit("new_challenge");
 }
 
 HTMLActuator.prototype.getCoordsFromID = function(id){

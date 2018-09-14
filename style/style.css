@@ -6,9 +6,14 @@ body {
     overflow: scroll;
     background: lightblue;
     display: block;
-    font-family: "Clear Sans", "Helvetica Neue", Arial, sans-serif;
-    font-size: 200%;
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 4vh;
     text-align: center;
+}
+
+button{
+    background: white;
+    color: dodgerblue;
 }
 
 .main-body-container{
@@ -25,11 +30,13 @@ body {
 h1:first-child{
     color: deepskyblue;
     margin-bottom: 0px;
+    font-size: 8vh;
 }
 
 h1:last-child{
-    margin-top: -30px;
+    margin-top: -3vh;
     color: navy;
+    font-size: 8vh;
 }
 
 .info-box{
@@ -67,7 +74,9 @@ h1:last-child{
 
 .board-container{
     position: absolute;
-    display: block;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
     top: 15vh;
     background: beige;
 }
@@ -81,6 +90,7 @@ h1:last-child{
     background: lightskyblue;
     border-radius: 20px;
     opacity: 1;
+    font-size: 5vh;
 }
 
 .value1{
@@ -126,6 +136,8 @@ h1:last-child{
     height: 5vh;
 }
 .word-container{
+    /*temp margin 4 pics*/
+    margin-left: 15vw;
     width: 40vw;
     height: 15vh;
     font-size: 13vh;
@@ -141,11 +153,16 @@ h1:last-child{
     vertical-align: middle;
     font-size: 7vh;
     color: orangered;
-    background: rgba(0,150,200,.5);
+    background: rgba(0,150,200,.9);
     border: 3px solid navy;
 }
 .message-hidden{
     display: none;
+}
+
+.word-list{
+    color: navy;
+    font-size: 3vh;
 }
 
 .inline-flex{

@@ -60,6 +60,7 @@ GameManager.prototype.gameSetUp = function(message,puzzlemode){
     //loading from previous state is turned off
     if(false){
         this.message = "";
+        this.levelUp = false;
         this.grid = new Grid(this.tilesAcross,this.tilesUp,previousState.grid.cells);
         this.level_score = previousState.level_score;
         this.total_score = previousState.total_score;
@@ -78,6 +79,7 @@ GameManager.prototype.gameSetUp = function(message,puzzlemode){
         this.active_tile = null;
         this.selected_tiles = [];
         this.selected_word = ""; 
+        this.levelUp = false;
     }
     
     this.counter = 0;
@@ -92,6 +94,16 @@ GameManager.prototype.gameSetUp = function(message,puzzlemode){
         this.timer();
     }
     
+}
+
+GameManager.prototype.levelUp = function(){
+    this.levelUp = true;
+    if(this.level == 1){
+        this.message = "instructions";
+    } else {
+        this.message = "level summary";
+    }
+    this.actuate;
 }
 
 //<-- make this an independent function from GameSetUp. newlevel should not be checking previous state in gameSetUp
@@ -110,7 +122,24 @@ GameManager.prototype.newLevel = function(){
         this.max_counter = 100;
     }
     
-    this.gameSetUp("NEXT LEVEL",false);
+        this.message = "LEVEL " + this.level;
+        
+        this.grid = new Grid(this.tilesAcross, this.tilesUp);
+        this.level_score = 0;
+        this.active_tile = null;
+        this.selected_tiles = [];
+        this.selected_word = "";
+        this.counter = 0;
+        this.gameOver = false;
+        this.paused = false;
+    
+        this.addStartTiles();
+    
+        //common point to both paths starts here
+        this.actuate();
+        if(!this.puzzlemode){
+            this.timer();
+        }
 }
 
 //add starting tiles
@@ -163,8 +192,6 @@ GameManager.prototype.addRandomTileTop = function(){
     //this.grid.printGrid();
 }
 
-
-
 //builds html
 GameManager.prototype.actuate = function(){
     
@@ -177,6 +204,7 @@ GameManager.prototype.actuate = function(){
     
     var data = {
         paused: this.paused,
+        levelUp: this.levelUp,
         selected_word: this.selected_word,
         message: this.message,
         level: this.level,
@@ -185,7 +213,8 @@ GameManager.prototype.actuate = function(){
         best_word: this.best_word_level,
         best_word_ever: this.best_word,
         total_score: this.total_score,
-        top_score: this.top_score
+        top_score: this.top_score,
+        word_list: this.level_words,
     };
     this.htmlActuator.actuate(this.grid,data,this.tileSize);
     this.update();
@@ -248,11 +277,52 @@ GameManager.prototype.select = function(data){
     //this.grid.printGrid();
 }
 
+//process a selected tile
+GameManager.prototype.tileSelect = function(data,pos){
+    this.grid.selectTile(data.x,data.y,pos);
+    this.selected_tiles.push(data);
+    this.active_tile = data;
+    var new_letter = this.grid.cells[data.x][data.y].value;
+    this.selected_word = this.selected_word + new_letter;
+    console.log(this.selected_tiles);
+}
+
+GameManager.prototype.tileDeselect = function(data){
+    console.log("deselect");
+    var pos = this.grid.cells[data.x][data.y].selectionPosition;
+    if(pos == 0){
+        this.resetSelection();
+        this.grid.deselectAll();
+    } else {
+        this.active_tile = this.selected_tiles[pos-1];
+        this.grid.deactivateTile(data.x,data.y);
+        this.grid.deselectTile(data.x,data.y);
+    
+        this.selected_word = this.selected_word.substr(0,pos);
+    
+        for(var x = pos; x<this.selected_tiles.length;x++){
+            var tile = this.selected_tiles[x];
+            console.log("deselect" + tile);
+            this.grid.deselectTile(tile.x,tile.y);
+            this.grid.deactivateTile(tile.x,tile.y);
+        }
+        this.selected_tiles.splice(pos,this.selected_tiles.length-1);
+        console.log(this.selected_tiles);
+    }
+    
+}
+
+GameManager.prototype.resetSelection = function(){
+    this.selected_word = "";
+    this.active_tile = null;
+    this.selected_tiles = [];
+}
+
+
 // a helper for manually entering words when AutoCheck is off. 
 // can't figure out how to bind checkWord directly to emit path (and pass in word too)
 GameManager.prototype.manualSubmitHelper = function(){
     var word = this.selected_word;
-    
     //if there's a selection, test it. If not, call a new tile.
     if(this.selected_tiles.length > 0){
         this.checkWord(word);
@@ -314,45 +384,6 @@ GameManager.prototype.addToScore = function(result){
         this.grid.deselectAll();
     }
     this.actuate();
-}
-
-//process a selected tile
-GameManager.prototype.tileSelect = function(data,pos){
-    this.grid.selectTile(data.x,data.y,pos);
-    this.selected_tiles.push(data);
-    this.active_tile = data;
-    var new_letter = this.grid.cells[data.x][data.y].value;
-    this.selected_word = this.selected_word + new_letter;
-    console.log(this.selected_tiles);
-}
-
-GameManager.prototype.tileDeselect = function(data){
-    console.log("deselect");
-    var pos = this.grid.cells[data.x][data.y].selectionPosition;
-    if(pos == 0){
-        this.resetSelection();
-        this.grid.deselectAll();
-    }
-    this.active_tile = null;
-    this.grid.deactivateTile(data.x,data.y);
-    this.grid.deselectTile(data.x,data.y);
-    
-    this.selected_word = this.selected_word.substr(0,pos);
-    
-    for(var x = pos; x<this.selected_tiles.length;x++){
-        var tile = this.selected_tiles[x];
-        console.log("deselect" + tile);
-        this.grid.deselectTile(tile.x,tile.y);
-        this.grid.deactivateTile(tile.x,tile.y);
-    }
-    this.selected_tiles.splice(pos,this.selected_tiles.length-1);
-    console.log(this.selected_tiles);
-}
-
-GameManager.prototype.resetSelection = function(){
-    this.selected_word = "";
-    this.active_tile = null;
-    this.selected_tiles = [];
 }
 
 GameManager.prototype.resetMessage = function(){
