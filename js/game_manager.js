@@ -16,6 +16,7 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.message = "";
     this.tips = "Find words to clear letters before the board fills up."
     
+    this.can_shake = false;
     this.max_counter = 500;
     this.counter = 0;
     //this.gravityOn = false;
@@ -38,9 +39,11 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.levelUp = false;
     this.autoWordCheck = false;
     
+    //send identifiers and callback functions to the input manager
     this.inputManager.on("move", this.move.bind(this));
     this.inputManager.on("pause", this.pauseToggle.bind(this));
     this.inputManager.on("submit", this.manualSubmitHelper.bind(this));
+    this.inputManager.on("shake", this.shake.bind(this));
     this.inputManager.on("shiftLeft", this.shiftGridLeft.bind(this));
     this.inputManager.on("shiftRight", this.shiftGridRight.bind(this));
     this.inputManager.on("newChallenge", this.newChallenge.bind(this));
@@ -247,35 +250,37 @@ GameManager.prototype.move = function(direction){
 GameManager.prototype.select = function(data){
     console.log("tile selected: "+data.x+", "+data.y);
     
-    var selected_status = this.grid.selectionStatus(data.x,data.y);
+    if(!this.gameOver){
+        var selected_status = this.grid.selectionStatus(data.x,data.y);
     
     if(!selected_status){
         
         var pos = this.selected_tiles.length ? this.selected_tiles.length : 0;
         
         //if the tile is selected, determine if there is already an active tile
-        if(this.active_tile){
-            
-            //check both the currently active tile and the first select tile to see if the new tile connects
-            var check1 = this.grid.checkAdjoiningTiles(this.active_tile,data);
-            console.log("check1:  " + check1);
-            var check2 = this.grid.checkAdjoiningTiles(this.selected_tiles[0],data);
-            console.log("check2:  " + check2);
-            if(check1 || check2){
+            if(this.active_tile){
+
+                //check both the currently active tile and the first select tile to see if the new tile connects
+                var check1 = this.grid.checkAdjoiningTiles(this.active_tile,data);
+                console.log("check1:  " + check1);
+                var check2 = this.grid.checkAdjoiningTiles(this.selected_tiles[0],data);
+                console.log("check2:  " + check2);
+                if(check1 || check2){
+                    this.tileSelect(data,pos);
+                }
+            } else {
+
+                //if there's no active tile, this is now the active tile
                 this.tileSelect(data,pos);
             }
-        }else{
-            
-            //if there's no active tile, this is now the active tile
-            this.tileSelect(data,pos);
+        } else {
+            this.tileDeselect(data);
         }
-    } else {
-        this.tileDeselect(data);
+        if(this.selected_tiles.length>2 && this.autoWordCheck){
+            this.checkWord(this.selected_word);
+        }
+        this.actuate();
     }
-    if(this.selected_tiles.length>2 && this.autoWordCheck){
-        this.checkWord(this.selected_word);
-    }
-    this.actuate();
     //this.grid.printGrid();
 }
 
@@ -388,6 +393,16 @@ GameManager.prototype.addToScore = function(result){
     this.actuate();
 }
 
+GameManager.prototype.shake = function(){
+    if(true){
+        this.grid.shake();
+    }else{
+        this.message = "it's too soon to shake!"
+    }
+    // update to see if a
+    this.actuate();
+}
+
 GameManager.prototype.shiftGridLeft = function(){
     console.log("shifting left");
     this.grid.shiftLeft();
@@ -446,7 +461,9 @@ GameManager.prototype.timer = function(){
         this.counter = this.counter + 1;
         } else {
             this.counter = 0;
-            
+            if(!this.can_shake){
+                this.can_shake;
+            }
             // add a random tile when the counter reaches it's goal, reset the counter and set new max
             this.addRandomTileTop();
             this.actuate();

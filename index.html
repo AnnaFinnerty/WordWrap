@@ -13,8 +13,18 @@
    <div class="main-body-container">
         <div class="sidebar-container">
             <div class="title-container">
-                 <h1 class="title">Word/</h1>
-                 <h1 class="title">/Wrap</h1>
+                 <h1 class="title">WORD/</h1>
+                 <h1 class="title">/WRAP</h1>
+            </div>
+            <div class="inline-flex">
+                <button class="new-challenge-button">
+                    <span class="glyphicons glyphicons-clock"></span> 
+                    <span class="vertical-align">New Challenge</span>
+                </button>
+                <button class="new-puzzle-button">
+                    <span class="glyphicons glyphicons-puzzle"></span>
+                    <span class="vertical-align">New Puzzle</span>
+                </button>
             </div>
             <div class="score-container">
                <div class="info-box">
@@ -38,12 +48,8 @@
                    <div class="top-score">0</div>
                </div>
             </div>
-            <div class="button-container">
-                <button class="new-challenge-button">Challenge</button>
-                <button class="new-puzzle-button">Puzzle</button>
-                <button class="pause-button">Pause</button>
-            </div>
-            <div class="tips"></div>
+            
+         
         </div>
 
         <div class="game-container">
@@ -61,10 +67,15 @@
         </div>
     </div>
     <div class="footer">
-        <div class="word-list"></div>
+        <button class="pause-button">Pause</button>
+        <button class="submit-button">SUBMIT</button>
+        <button class="shake-button">Shake</button>
+        <!--
+        <div class="shake-counter"><div class="shake-bar"></div></div>
+        -->
     </div>
     <div class="message-container"></div>
-    
+    <div class="floating"></div>
     <script src="js/word_check.js"></script>
     <script src="js/storage_manager.js"></script>
     <script src="js/input_manager.js"></script>

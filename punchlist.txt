@@ -1,11 +1,16 @@
 Doing
-+ remove common path between newLevel/Game Setup (to prevent interference with local storage manager)
-+ add break screen between levels
-+ tips/instructions
-+ shifting -- is this a core game dynamic?
++ Click off word container to submit
++ Shake counter? (or delete the shake counter stuff in index)
++ add break screen between levels/ summation screen
++ intro/instructions/walkthrough?
+
 
 
 Done
+- Shake
+- Lock everything down at end of game (no more select!);
+- shifting
+- remove common path between newLevel/Game Setup (to prevent interference with local storage manager)
 - add speed up button
 - fix tile selection bug (any tile select after partial deselect)
 - implement ongoing wordlist

@@ -131,14 +131,30 @@ Grid.prototype.checkDistance = function(tile, direction){
         case "all":
             break
             
-        case "right":
+        case "right1":
+            if(x == this.tilesX-1){
+                return 0
+            }
+            if(this.cells[x+1][y]){
+                return 0
+            } else {
+                return 1
+            }
             break
             
-        case "left":
+        case "left1":
+            if(x == 0){
+                return 0
+            }
+            if(this.cells[x-1][y]){
+                return 0
+            } else {
+                return 1
+            }
             break  
             
             default:
-             return 9 - y;
+             return "error";
             break;
     }
     return 0;
@@ -213,6 +229,52 @@ Grid.prototype.deactivateTile = function(x,y){
     this.cells[x][y].updateActive(false);
 }
 
+Grid.prototype.shake = function(){
+    var self = this;
+    console.log("Shaking!");
+    this.eachCell(function(x,y,tile){
+        if(tile){
+            
+            var left_check = self.checkDistance(tile,"left1");
+            
+            var right_check = self.checkDistance(tile,"right1");
+            
+            if(left_check && right_check){
+                console.log("both");
+                console.log(x +","+y);
+                console.log(left_check);
+                console.log(right_check);
+                var r = Math.random();
+                if(r<.5){
+                    self.cells[x-1][y]= tile;
+                    self.cells[x][y]= null;
+                    tile.moveLeft(self.tilesX);
+                } else {
+                    self.cells[x+1][y]= tile;
+                    self.cells[x][y]= null;
+                    tile.moveRight(self.tilesX);
+                }
+            } else if (left_check) {
+                console.log("left");
+                console.log(x +","+y);
+                console.log(left_check);
+                console.log(this.cells);
+                self.cells[x-1][y]= tile;
+                self.cells[x][y]= null;
+                tile.moveLeft(self.tilesX);
+            } else if (right_check){
+                console.log("right");
+                console.log(x +","+y);
+                console.log(right_check);
+                self.cells[x+1][y]= tile;
+                self.cells[x][y]= null;
+                tile.moveRight(self.tilesX);
+            }
+        }
+    });
+}
+
+//shift the entire grid left
 Grid.prototype.shiftLeft = function(){
     var self = this;
     console.log("Shift left!");
@@ -232,6 +294,7 @@ Grid.prototype.shiftLeft = function(){
     console.log(new_grid);
 }
 
+//shift the entire grid right
 Grid.prototype.shiftRight = function(){
     var self = this;
     console.log("Shift right!");

@@ -39,6 +39,8 @@ InputManager.prototype.listen = function(){
     
     //respond to button presses
     this.bindButtonPress(".pause-button",this.pause);
+    this.bindButtonPress(".submit-button",this.submit);
+    this.bindButtonPress(".shake-button",this.shake);
     this.bindButtonPress(".new-challenge-button",this.newChallenge);
     this.bindButtonPress(".new-puzzle-button",this.newPuzzle);
     this.bindButtonPress(".arrow-right",this.shiftRight);
@@ -100,6 +102,11 @@ InputManager.prototype.pause = function(){
 InputManager.prototype.submit = function(){
     event.preventDefault();
    this.emit("submit");
+}
+
+InputManager.prototype.shake = function(){
+    event.preventDefault();
+    this.emit("shake");
 }
 
 InputManager.prototype.shiftRight = function(){

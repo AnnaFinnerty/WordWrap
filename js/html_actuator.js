@@ -16,6 +16,7 @@ function HTMLActuator(){
     this.total_score = document.querySelector('.total-score');
     this.top_score = document.querySelector('.top-score');
     this.word_list = document.querySelector('.word-list');
+    this.shake_bar = document.querySelector('.shake-bar');
     this.score = 0;
     this.tileSize = window.innerHeight/10;
 }
