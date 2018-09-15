@@ -128,8 +128,13 @@ Grid.prototype.checkDistance = function(tile, direction){
             return (this.tilesY-1)-(y);
             break;
             
-        case "all":
-            break
+        case "up1":
+            if(this.cells[x][y-1]){
+                return 0
+            } else {
+                return 1
+            }
+            break 
             
         case "right1":
             if(x == this.tilesX-1){
@@ -236,39 +241,41 @@ Grid.prototype.shake = function(){
         if(tile){
             
             var left_check = self.checkDistance(tile,"left1");
-            
             var right_check = self.checkDistance(tile,"right1");
+            var up_check = self.checkDistance(tile,"up1");
             
-            if(left_check && right_check){
-                console.log("both");
-                console.log(x +","+y);
-                console.log(left_check);
-                console.log(right_check);
-                var r = Math.random();
-                if(r<.5){
+            if(!up_check){
+                    if(left_check && right_check){
+                    console.log("both");
+                    console.log(x +","+y);
+                    console.log(left_check);
+                    console.log(right_check);
+                    var r = Math.random();
+                    if(r<.5){
+                        self.cells[x-1][y]= tile;
+                        self.cells[x][y]= null;
+                        tile.moveLeft(self.tilesX);
+                    } else {
+                        self.cells[x+1][y]= tile;
+                        self.cells[x][y]= null;
+                        tile.moveRight(self.tilesX);
+                    }
+                } else if (left_check) {
+                    console.log("left");
+                    console.log(x +","+y);
+                    console.log(left_check);
+                    console.log(this.cells);
                     self.cells[x-1][y]= tile;
                     self.cells[x][y]= null;
                     tile.moveLeft(self.tilesX);
-                } else {
+                } else if (right_check){
+                    console.log("right");
+                    console.log(x +","+y);
+                    console.log(right_check);
                     self.cells[x+1][y]= tile;
                     self.cells[x][y]= null;
                     tile.moveRight(self.tilesX);
                 }
-            } else if (left_check) {
-                console.log("left");
-                console.log(x +","+y);
-                console.log(left_check);
-                console.log(this.cells);
-                self.cells[x-1][y]= tile;
-                self.cells[x][y]= null;
-                tile.moveLeft(self.tilesX);
-            } else if (right_check){
-                console.log("right");
-                console.log(x +","+y);
-                console.log(right_check);
-                self.cells[x+1][y]= tile;
-                self.cells[x][y]= null;
-                tile.moveRight(self.tilesX);
             }
         }
     });
