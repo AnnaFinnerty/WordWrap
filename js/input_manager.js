@@ -34,7 +34,9 @@ InputManager.prototype.listen = function(){
     83: 2, // S
     65: 3, // A
     80: 4, //P -- paused 
-    32: 5, //space -- submit/hold   
+    32: 5, //space -- submit/hold  
+    16: 6, // shift -- shake
+    18: 7 // alt -- shift left/right
   };
     
     //respond to button presses
@@ -68,6 +70,16 @@ InputManager.prototype.listen = function(){
                   case 5:
                       self.submit();
                       break
+                  case 6:
+                      self.shake();
+                      break  
+                  case 7:
+                      if(event.location == 0){
+                          self.shiftLeft();
+                      } else {
+                          self.shiftRight();
+                      }
+                      break 
                   default:
                      self.emit("move", mapped); 
                       break
