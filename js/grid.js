@@ -18,8 +18,24 @@ Grid.prototype.empty = function(){
     return cells;
 }
 
-//return a random cell
+//return a random tile (for keyboard input when no tile is selected)
+Grid.prototype.randomAvailableTile = function(){
+    var tiles = this.availableTiles();
+    return tiles[Math.floor(Math.random() * tiles.length)]
+}
 
+//return a random tile (for keyboard input when no tile is selected)
+Grid.prototype.availableTiles = function(){
+    var tiles = [];
+    this.eachCell(function(x,y,tile){
+        if(tile){
+            tiles.push({x:y,y:y})
+        }
+    })
+    return tiles
+}
+
+//return a random open cell
 Grid.prototype.randomAvailableCell = function(){
     var cells = this.availableCells();
     if(cells.length){
@@ -57,7 +73,7 @@ Grid.prototype.randomColumn = function(){
     }
 }
 
-//find all open columns and push the top position of that column
+//find all open columns and return the top position in that column
 Grid.prototype.openColumns = function(){
     var columns = [];
     for(var i=0;i<this.tilesX;i++){
@@ -87,7 +103,7 @@ Grid.prototype.checkForFalling = function(grid){
             //only check tiles that exist
             if(tile){
                 //check the distance
-                var distance = this.checkDistance(tile,"down");
+                var distance = this.checkDistance(tile.x,tile.y,"down");
                 //console.log(tile.value);
                 //console.log(distance);
                 //if there's no tile below, add it to the list of falling tiles
@@ -108,9 +124,7 @@ Grid.prototype.checkForFalling = function(grid){
 }
 
 //checks how many open spaces the tile can proceed in a given direction
-Grid.prototype.checkDistance = function(tile, direction){
-    var x = tile.x;
-    var y = tile.y;
+Grid.prototype.checkDistance = function(x,y, direction){
     
     switch(direction){
         case "down":
@@ -146,6 +160,14 @@ Grid.prototype.checkDistance = function(tile, direction){
                 return 1
             }
             break
+            
+        case "down1":
+            if(this.cells[x][y+1]){
+                return 0
+            } else {
+                return 1
+            }
+            break 
             
         case "left1":
             if(x == 0){
@@ -214,6 +236,11 @@ Grid.prototype.selectTile = function(x,y, pos){
     console.log(this.cells[x][y]);
 }
 
+Grid.prototype.activateTile = function(x,y){
+    this.cells[x][y].updateActive(true);
+    console.log(this.cells[x][y]);
+}
+
 Grid.prototype.deselectAll = function(){
     this.eachCell(function(x,y,tile){
         if(tile){
@@ -240,9 +267,9 @@ Grid.prototype.shake = function(){
     this.eachCell(function(x,y,tile){
         if(tile){
             
-            var left_check = self.checkDistance(tile,"left1");
-            var right_check = self.checkDistance(tile,"right1");
-            var up_check = self.checkDistance(tile,"up1");
+            var left_check = self.checkDistance(tile.x,tile.y,"left1");
+            var right_check = self.checkDistance(tile.x,tile.y,"right1");
+            var up_check = self.checkDistance(tile.x,tile.y,"up1");
             
             if(!up_check){
                     if(left_check && right_check){

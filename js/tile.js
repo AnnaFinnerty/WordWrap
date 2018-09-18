@@ -72,9 +72,20 @@ Tile.prototype.serialize = function(){
     return{
         position:{
             x: this.x,
-            y: this.y
+            y: this.y,
+            currentX: this.currentX,
+            currentY: this.currentY,
+            goalX: this.goalX,
+            goalY: this.goalY,
+            speed: this.speed,
+            falling: this.falling
         },
-        value: this.value
+        value: this.value,
+        points: this.points,
+        selected: this.selected,
+        selectionPosition: this.selectionPosition,
+        active: this.active,
+        highlighted: this.highlighted,
     }
 }
 

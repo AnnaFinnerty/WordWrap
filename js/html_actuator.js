@@ -1,11 +1,14 @@
 function HTMLActuator(){
+    this.levelUp = false;
     var self = this;
     this.events = {};
     this.tile_container = document.querySelector('.tile-container');
     this.word_container = document.querySelector('.word-container');
+    this.word_container.addEventListener("click",function(){
+        self.submit();
+    })
     this.message_container = document.querySelector('.message-container');
     this.message_container.addEventListener("click",function(){
-        console.log("clicking the fucking message");
         self.click();
     })
     this.current_level = document.querySelector('.current-level');
@@ -24,10 +27,10 @@ function HTMLActuator(){
 HTMLActuator.prototype.actuate = function(grid,data,tileSize){
     //console.log("Actuating!");
     var self = this;
-    
+    this.levelUp = data.levelUp;
     window.requestAnimationFrame(function(){
         self.clearContainer(self.tile_container);
-        if(!data.paused &&!data.levelUp){
+        if(!data.paused){
             grid.cells.forEach(function(column){
             column.forEach(function(cell){
                 if(cell){
@@ -40,12 +43,18 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
         self.word_container.innerHTML = data.selected_word;
         self.message_container.innerHTML = data.message;
         //don't display the message if it's empty
-        self.message_container.className = data.message == "" ? "message-hidden" : "message-container";
-        
+        var message_container_showing = data.message == "" ? "message-container hidden" : "message-container";
+        var message_container_length = data.levelUp ? " long" : " short";
         if(data.levelUp){
-            var button = document.createElement("button");
-            button.innerHTML = "CONTINUE"
+            var text;
+            if(data.level == 1){
+                text = "START";
+            } else {
+                text = "NEXT LEVEL"
+            }
+            self.addButton(self.message_container,text,"start");
         }
+        self.message_container.className = message_container_showing + message_container_length;
         //remove for pics!
         self.current_level.innerHTML = "LEVEL"+data.level;
         self.level_score.innerHTML = data.level_score;
@@ -61,6 +70,19 @@ HTMLActuator.prototype.clearContainer = function(container){
     while(container.firstChild){
         container.removeChild(container.firstChild);
     }
+}
+
+HTMLActuator.prototype.addButton = function(container, text, emit){
+    var button = document.createElement("button");
+        button.innerHTML = text;
+        button.className = "message-button";
+        button.id = "message_button_"+emit;
+    container.appendChild(button);
+    var self = this;
+    var added_button = document.querySelector("#message_button_"+emit);
+        added_button.addEventListener("click",function(){
+            self.emit(emit);
+        })
 }
 
 HTMLActuator.prototype.addTile = function(tile, tileSize){
@@ -112,12 +134,23 @@ HTMLActuator.prototype.emit = function (event, data) {
 
 HTMLActuator.prototype.click = function(){
     event.preventDefault();
-    this.emit("close_message");
+    if(this.levelUp){
+        this.start();
+    } else {
+        this.emit("close_message");
+    }
 }
 
-HTMLActuator.prototype.continue = function(){
+HTMLActuator.prototype.start = function(){
     event.preventDefault();
-    this.emit("continue");
+    console.log("Clicking start!");
+    this.emit("start");
+}
+
+HTMLActuator.prototype.submit = function(){
+    event.preventDefault();
+    console.log("submitting!");
+    this.emit("submit");
 }
 
 HTMLActuator.prototype.newPuzzle = function(){

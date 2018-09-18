@@ -1,12 +1,23 @@
 Doing
-+ Click off word container to submit
-+ Shake counter? (or delete the shake counter stuff in index)
-+ add break screen between levels/ summation screen
-+ intro/instructions/walkthrough?
++ clicking off the first letter in the selection should add to the FRONT of the word
++ keyboard input
++ change how random tile for initial keyboard input is selected (consistant start area)
++ flip game board?
++ floating word bubble on successful submit?
++ Add built-in word database
++ Build out puzzle mode (show different sidebar/?no top, tiles remaining, different solve screen, etc.)
++ twitter/fb/screenshot?
++ change keyboard input?
 
 
 
 Done
+- Click off pause message to unpause
+- game over message showing as levelUP(long) for some reason
+- add break screen between levels/ summation screen
+- intro/instructions/walkthrough?
+- Click off word container to submit
+- Move timer to start
 - Shake
 - Lock everything down at end of game (no more select!);
 - shifting
@@ -14,3 +25,6 @@ Done
 - add speed up button
 - fix tile selection bug (any tile select after partial deselect)
 - implement ongoing wordlist
+
+Not Doing
++ Shake counter? (or delete the shake counter stuff in index)
