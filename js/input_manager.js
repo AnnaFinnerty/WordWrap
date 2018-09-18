@@ -57,13 +57,6 @@ InputManager.prototype.listen = function(){
           if (mapped !== undefined) {
               event.preventDefault();
               switch(mapped){
-                  //<-- ideally shift should be changed to other keys      
-                  case 1:
-                      self.shiftRight();
-                      break
-                  case 3:
-                      self.shiftLeft();
-                      break
                   case 4:
                       self.pause();
                       break

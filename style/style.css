@@ -200,16 +200,39 @@ h1:last-child{
 .message-container{
     width: 50vw;
     margin: 10vw;
-    height: auto;
-    text-align: center;
+    padding: 3vw;
     vertical-align: middle;
-    font-size: 7vh;
     color: orangered;
     background: rgba(230,240,255,.9);
     border: 3px solid navy;
 }
-.message-hidden{
+
+.long{
+    height: 60vh;
+    font-size: 3vw;
+    text-align: left;
+}
+
+.short{
+    height: auto;
+    font-size: 5vw;
+    text-align: center;
+}
+
+.hidden{
     display: none;
+}
+
+.message-button{
+    font-size: 3vh;
+    border-radius: 3vw;
+    border: 2px solid navy;
+    margin-top: -1vh;
+    transform: translate(0vw,0vh);
+}
+
+.message-button:hover{
+    background: deepskyblue;
 }
 
 .word-list{
