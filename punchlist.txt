@@ -1,4 +1,7 @@
 Doing
++ submit button active/inactive state
++ add autocheck button
++ if you shake while a tile is falling, how can shaken tiles be forced to land before falling tiles?
 + clicking off the first letter in the selection should add to the FRONT of the word
 + keyboard input
 + change how random tile for initial keyboard input is selected (consistant start area)
@@ -7,11 +10,12 @@ Doing
 + Add built-in word database
 + Build out puzzle mode (show different sidebar/?no top, tiles remaining, different solve screen, etc.)
 + twitter/fb/screenshot?
-+ change keyboard input?
-
 
 
 Done
+- new tiles should not load until start button is clicked
+- fix message button spacing issues
+- onresize event not working
 - Click off pause message to unpause
 - game over message showing as levelUP(long) for some reason
 - add break screen between levels/ summation screen

@@ -14,23 +14,20 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.puzzleMode = false;
     
     this.message = "";
-    this.tips = "Find words to clear letters before the board fills up."
     
     this.floating = false;
-    this.float_counter = 300;
-    this.can_shake = false;
     this.max_counter = 500;
     this.counter = 0;
-    //this.gravityOn = false;
     
     this.tilesAcross = 7;
     this.tilesUp = 9;
+    
     this.inputManager = new InputManager;
     this.htmlActuator = new HTMLActuator;
     this.wordCheck = new WordCheck;
     this.storageManager = new LocalStorageManager;
     
-    this.tileSize = (window.innerHeight*.9)/this.tilesUp;
+
     this.startTiles = 35;
     this.active_tile = null;
     this.selected_tiles = [];
@@ -40,9 +37,15 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.gameOver = false;
     this.levelUp = false;
     this.autoWordCheck = false;
+    this.keyboardSelect = false;
+    
+    var self = this;
+    window.addEventListener("resize",function(){
+        self.screenResize();
+    })
     
     //send identifiers and callback functions to the input manager
-    this.inputManager.on("move", this.move.bind(this));
+    this.inputManager.on("move", this.move_with_keys.bind(this));
     this.inputManager.on("pause", this.pauseToggle.bind(this));
     this.inputManager.on("submit", this.manualSubmitHelper.bind(this));
     this.inputManager.on("shake", this.shake.bind(this));
@@ -50,11 +53,22 @@ function GameManager(InputManager, HTMLActuator, LocalStorageManager){
     this.inputManager.on("shiftRight", this.shiftGridRight.bind(this));
     this.inputManager.on("newChallenge", this.newChallenge.bind(this));
     this.inputManager.on("newPuzzle", this.newPuzzle.bind(this));
-    this.htmlActuator.on("select", this.select.bind(this));
+    this.inputManager.on("showInstructions", this.showInstructions.bind(this));
+    this.inputManager.on("showKeys", this.showKeys.bind(this));
+    
+    this.htmlActuator.on("select", this.select_with_mouse.bind(this));
     this.htmlActuator.on("start", this.start.bind(this));
     this.htmlActuator.on("submit", this.manualSubmitHelper.bind(this));
     this.htmlActuator.on("close_message", this.resetMessage.bind(this));
     
+    this.main_body_container = document.querySelector(".main-body-container");
+    this.sidebar = document.querySelector(".sidebar-container");
+    this.board = document.querySelector(".board-container");
+    this.tile_container = document.querySelector(".tile-container");
+    this.score_container = document.querySelector(".score-container");
+    this.side_buttons = document.querySelector(".side-buttons");
+    this.center_buttons = document.querySelector(".center-buttons");
+    this.message_container = document.querySelector(".message-container");
     this.float_word = document.querySelector("float-word");
     
     this.screenSetUp();
@@ -113,19 +127,6 @@ GameManager.prototype.advanceLevel = function(){
     this.actuate();
 }
 
-//starts level (on click/key input)
-GameManager.prototype.start = function(){
-    console.log("Starting!");
-    this.levelUp = false;
-    this.paused = false;
-    this.message = "LEVEL " + this.level;
-    this.update();
-    if(!this.puzzleMode){
-        this.timer();
-    }
-    this.actuate();
-}
-
 //builds settings for the new level
 GameManager.prototype.newLevel = function(){
     console.log("new level!");
@@ -156,58 +157,17 @@ GameManager.prototype.newLevel = function(){
         //this.actuate();
 }
 
-//add starting tiles
-GameManager.prototype.addStartTiles = function(){
-    console.log("Adding Start Tiles");
-    if(this.puzzleMode){
-        this.fillGrid();
-    } else {
-        for(var i=0;i<this.startTiles;i++){
-            this.addRandomTile();
-        }
+//starts level (on click/key input)
+GameManager.prototype.start = function(){
+    console.log("Starting!");
+    this.levelUp = false;
+    this.paused = false;
+    this.message = "LEVEL " + this.level;
+    this.update();
+    if(!this.puzzleMode){
+        this.timer();
     }
-}
-
-//fill the whole grid (for puzzle mode)
-GameManager.prototype.fillGrid = function(){
-    for(var x=0;x<this.tilesAcross;x++){
-       for(var y=0;y<this.tilesUp;y++){
-            var letter = this.randomLetter();
-            var tile = new Tile({ x: x, y: y },letter,this.pointValueMap(letter));
-            this.grid.insertTile(tile);
-       }   
-    }
-}
-
-//generate a random tile anywhere on the board
-GameManager.prototype.addRandomTile = function(){
-    //add a check if tiles are available in grid
-    var letter = this.randomStartLetter();
-    var tile = new Tile(this.grid.randomAvailableCell(),letter,this.pointValueMap(letter));
-    this.grid.insertTile(tile);
-}
-
-//generate a random tile in the top row
-//! this is also where the message gets turned off in normal play
-//! this is also what determines the end of the game in challenge mode
-GameManager.prototype.addRandomTileTop = function(){
-    
-    //check if a new tile can be added; if not, end the game
-    var openPos = this.grid.randomAvailableCellTop();
-    if(openPos){
-        var letter = this.randomLetter();
-        var tile = new Tile(openPos,letter,this.pointValueMap(letter));
-        this.grid.insertTile(tile);
-        if(!this.levelUp){
-            this.message = "";
-        }
-    } else {
-        if(!this.puzzleMode){
-            this.message = "GAME OVER";
-            this.endGame();
-        }
-    }
-    //this.grid.printGrid();
+    this.actuate();
 }
 
 //sends data to and starts HTMLActuator
@@ -224,6 +184,7 @@ GameManager.prototype.actuate = function(){
         paused: this.paused,
         levelUp: this.levelUp,
         selected_word: this.selected_word,
+        floating: this.floating,
         message: this.message,
         level: this.level,
         next_level: this.next_level,
@@ -233,6 +194,7 @@ GameManager.prototype.actuate = function(){
         total_score: this.total_score,
         top_score: this.top_score,
         word_list: this.level_words,
+        gameOver: this.gameOver,
     };
     this.htmlActuator.actuate(this.grid,data,this.tileSize);
     this.update();
@@ -253,7 +215,7 @@ GameManager.prototype.update = function(){
 
 //<-- not working yet. No arrow functions.
 //selected or highlight a new tile (with arrow keys);
-GameManager.prototype.move = function(direction){
+GameManager.prototype.move_with_keys = function(direction){
     console.log("arrow moving!");
     console.log(direction);
     
@@ -263,8 +225,11 @@ GameManager.prototype.move = function(direction){
         this.active_tile = this.grid.randomAvailableTile();
         this.grid.activateTile(this.active_tile.x, this.active_tile.y);
     } else {
+        
         var check;
         var new_tile = null;
+        
+        //check if there is a tile in the direction the player wants to go
         switch(direction){
             case 0:
                 check = this.grid.checkDistance(this.active_tile.x, this.active_tile.y, "up1");
@@ -297,17 +262,27 @@ GameManager.prototype.move = function(direction){
                 }
                 break
         }
+        
+        //if a tile exists in the chosen direction, activate it
         if(new_tile){
             this.active_tile = new_tile;
             this.grid.activateTile(new_tile.x, new_tile.y);
+           
+            //check if the tile is selected, and toggle it's status
+            var selected_status = this.grid.selectionStatus(new_tile.x,new_tile.y);
+            if(!selected_status){
+                var pos = this.selected_tiles.length ? this.selected_tiles.length : 0;
+                this.tileSelect(new_tile,pos);
+            } else {
+                this.tileDeselect(new_tile);
+            }
         }
     }
     this.actuate();
 }
 
-//<-- function should be broadened, with the help of a click helper function, so it can take input from keystrokes too
 //select or highlight a new tile (with mouse click);
-GameManager.prototype.select = function(data){
+GameManager.prototype.select_with_mouse = function(data){
     console.log("tile selected: "+data.x+", "+data.y);
     
     if(!this.gameOver){
@@ -315,45 +290,55 @@ GameManager.prototype.select = function(data){
         //check if the tile is already selected
         var selected_status = this.grid.selectionStatus(data.x,data.y);
     
-    if(!selected_status){
-        
-        var pos = this.selected_tiles.length ? this.selected_tiles.length : 0;
-        
-        //if the tile is selected, determine if there is already an active tile
-            if(this.active_tile){
+        if(!selected_status){
 
-                //check both the currently active tile and the first select tile to see if the new tile connects
-                var check1 = this.grid.checkAdjoiningTiles(this.active_tile,data);
-                console.log("check1:  " + check1);
-                var check2 = this.grid.checkAdjoiningTiles(this.selected_tiles[0],data);
-                console.log("check2:  " + check2);
-                if(check1 || check2){
+            var pos = this.selected_tiles.length ? this.selected_tiles.length : 0;
+
+            //if the tile is selected, determine if there is already an active tile
+                if(this.active_tile){
+
+                    //check both the currently active tile and the first select tile to see if the new tile connects
+                    var check1 = this.grid.checkAdjoiningTiles(this.active_tile,data);
+                    console.log("check1:  " + check1);
+                    var check2 = this.grid.checkAdjoiningTiles(this.selected_tiles[0],data);
+                    console.log("check2:  " + check2);
+                    if(check1){
+                        this.grid.deactivateTile(this.active_tile.x,this.active_tile.y);
+                        this.tileSelect(data,pos,false);
+                    } else if (check2){
+                        this.grid.deactivateTile(this.active_tile.x,this.active_tile.y);
+                        this.tileSelect(data,pos,true);
+                    }
+                } else {
+
+                    //if there's no active tile, this is now the active tile
                     this.tileSelect(data,pos);
                 }
             } else {
-
-                //if there's no active tile, this is now the active tile
-                this.tileSelect(data,pos);
+                this.tileDeselect(data);
             }
-        } else {
-            this.tileDeselect(data);
-        }
-        if(this.selected_tiles.length>2 && this.autoWordCheck){
-            this.checkWord(this.selected_word);
-        }
+            if(this.selected_tiles.length>2 && this.autoWordCheck){
+                this.checkWord(this.selected_word);
+            }
         this.actuate();
     }
     //this.grid.printGrid();
 }
 
 //process a selected tile
-GameManager.prototype.tileSelect = function(data,pos){
-    this.grid.selectTile(data.x,data.y,pos);
-    this.selected_tiles.push(data);
-    this.active_tile = data;
-    var new_letter = this.grid.cells[data.x][data.y].value;
-    this.selected_word = this.selected_word + new_letter;
-    console.log(this.selected_tiles);
+GameManager.prototype.tileSelect = function(data,pos,addToFront){
+        this.grid.selectTile(data.x,data.y,pos);
+        this.active_tile = data;
+        var new_letter = this.grid.cells[data.x][data.y].value;
+    if(addToFront){
+        this.selected_tiles.splice(0,1,data);
+        this.selected_word = new_letter + this.selected_word;
+        console.log(this.selected_tiles);
+    } else{
+        this.selected_tiles.push(data);
+        this.selected_word = this.selected_word + new_letter;
+        console.log(this.selected_tiles);
+    }
 }
 
 //remove the (de)selected tile (and any tiles added after it was)
@@ -394,7 +379,7 @@ GameManager.prototype.resetSelection = function(){
 GameManager.prototype.manualSubmitHelper = function(){
     var word = this.selected_word;
     //if there's a selection, test it. If not, call a new tile.
-    if(this.selected_tiles.length > 0){
+    if(this.selected_tiles.length > 2){
         this.checkWord(word);
     } else {
         this.addRandomTileTop();
@@ -425,6 +410,7 @@ GameManager.prototype.checkWord = function(word){
 //a word has been successfully found, so update the score and other data
 GameManager.prototype.addToScore = function(result){
     if(result == 1){
+        this.counter = 0;
         var word = this.selected_word;
         this.level_words.push(word);
         var word_points = this.sumPoints(word);
@@ -456,6 +442,7 @@ GameManager.prototype.addToScore = function(result){
     this.actuate();
 }
 
+//"shakes" any loose letters
 GameManager.prototype.shake = function(){
     if(!this.paused){
         this.grid.shake();
@@ -463,6 +450,7 @@ GameManager.prototype.shake = function(){
     }    
 }
 
+//shift the whole grid left
 GameManager.prototype.shiftGridLeft = function(){
     if(!this.paused){
        console.log("shifting left");
@@ -471,6 +459,7 @@ GameManager.prototype.shiftGridLeft = function(){
     }
 }
 
+//shift the whole grid right
 GameManager.prototype.shiftGridRight = function(){
     if(!this.paused){
         console.log("shifting right");
@@ -479,6 +468,7 @@ GameManager.prototype.shiftGridRight = function(){
     }
 }
 
+//reset the message
 GameManager.prototype.resetMessage = function(){
     this.message = "";
     if(this.paused){
@@ -563,6 +553,60 @@ GameManager.prototype.pauseToggle = function(){
     }
 }
 
+//add starting tiles
+GameManager.prototype.addStartTiles = function(){
+    console.log("Adding Start Tiles");
+    if(this.puzzleMode){
+        this.fillGrid();
+    } else {
+        for(var i=0;i<this.startTiles;i++){
+            this.addRandomTile();
+        }
+    }
+}
+
+//fill the whole grid (for puzzle mode)
+GameManager.prototype.fillGrid = function(){
+    for(var x=0;x<this.tilesAcross;x++){
+       for(var y=0;y<this.tilesUp;y++){
+            var letter = this.randomLetter();
+            var tile = new Tile({ x: x, y: y },letter,this.pointValueMap(letter));
+            this.grid.insertTile(tile);
+       }   
+    }
+}
+
+//generate a random tile anywhere on the board
+GameManager.prototype.addRandomTile = function(){
+    //add a check if tiles are available in grid
+    var letter = this.randomStartLetter();
+    var tile = new Tile(this.grid.randomAvailableCell(),letter,this.pointValueMap(letter));
+    this.grid.insertTile(tile);
+}
+
+//generate a random tile in the top row
+//! this is also where the message gets turned off in normal play
+//! this is also what determines the end of the game in challenge mode
+GameManager.prototype.addRandomTileTop = function(){
+    
+    //check if a new tile can be added; if not, end the game
+    var openPos = this.grid.randomAvailableCellTop();
+    if(openPos){
+        var letter = this.randomLetter();
+        var tile = new Tile(openPos,letter,this.pointValueMap(letter));
+        this.grid.insertTile(tile);
+        if(!this.levelUp){
+            this.message = "";
+        }
+    } else {
+        if(!this.puzzleMode){
+            this.message = "GAME OVER";
+            this.endGame();
+        }
+    }
+    //this.grid.printGrid();
+}
+
 //generate a random letter for a starting tile
 GameManager.prototype.randomStartLetter = function(){
     var temp_letters = ['A','B','D','E','H','N','U','T'];
@@ -624,10 +668,20 @@ GameManager.prototype.sumPoints = function(word){
     return sum;
 }
 
+GameManager.prototype.showInstructions = function(){
+    console.log("Showing instructions!");
+}
+
 //the instruction text
 GameManager.prototype.intructions = function(){
-    var instruction_text = "<span class='glyphicons glyphicons-arrow-right'></span>Select adjoining tiles using arrows keys or mouse. <br><span class='glyphicons glyphicons-arrow-right'></span> Letters can be connected in any direction, or on the diagonal. <br><span class='glyphicons glyphicons-arrow-right'></span> Submit words with spacebar to earn points and clear the screen. <br><span class='glyphicons glyphicons-arrow-right'></span> If the board completely fills, the game is over. <br><span class='glyphicons glyphicons-arrow-right'></span> Alt keys shift the grid. <br><span class='glyphicons glyphicons-arrow-right'></span> Shift key shakes loose letters.";
+    var instruction_text_challenge = "<span class='glyphicons glyphicons-arrow-right'></span> Submit words with spacebar before the screen fills up. <br><span class='glyphicons glyphicons-arrow-right'></span> Connect letters in any direction, or on the diagonal. <br><span class='glyphicons glyphicons-arrow-right'></span> If the board completely fills, the game is over. <br><span class='glyphicons glyphicons-arrow-right'></span> Alt keys shift the grid. <br><span class='glyphicons glyphicons-arrow-right'></span> Shift key shakes loose letters.";
+    var instruction_text_puzzle = "<span class='glyphicons glyphicons-arrow-right'></span> Clear as many tiles as you can. <br><span class='glyphicons glyphicons-arrow-right'></span> Connect letters in any direction, or on the diagonal. <br><span class='glyphicons glyphicons-arrow-right'></span> If the board completely fills, the game is over. <br><span class='glyphicons glyphicons-arrow-right'></span> Alt keys shift the grid. <br><span class='glyphicons glyphicons-arrow-right'></span> Shift key shakes loose letters.";
+    var instruction_text = this.puzzleMode ? instruction_text_puzzle : instruction_text_challenge;
     return instruction_text
+}
+
+GameManager.prototype.showKeys = function(){
+    console.log("Showing keys!");
 }
 
 //the instruction text
@@ -648,46 +702,64 @@ GameManager.prototype.levelUpText = function(){
     return levelUpText
 }
 
+GameManager.prototype.screenResize = function(){
+    console.log("Showing keys!");
+    this.screenSetUp();
+    this.actuate();
+}
+
 // set up screen and sizes on intial load and resize
 GameManager.prototype.screenSetUp = function(){
-    var sidebar = document.querySelector(".sidebar-container");
-    var board = document.querySelector(".board-container");
-    var tile_container = document.querySelector(".tile-container");
-    var message_container = document.querySelector(".message-container");
-    
-    console.log(typeof(window.innerWidth));
-    
+        
     if(window.innerWidth < 700){
         console.log("mobile mode");
-        this.tileSize = (window.innerWidth*.9)/this.tilesAcross;
         
-        sidebar.className = "hidden";
-        sidebar.style.width = window.innerWidth + "px";
-        sidebar.style.height = window.innerHeight*.1 + "px";
+        this.main_body_container.className = "main-body-container block";
+        this.tileSize = (window.innerHeight*.65)/this.tilesUp;
         
-        board.style.width = window.innerWidth+ "px";
-        board.style.height = window.innerHeight*.8 + "px";
+        this.sidebar.className = "topbar-container inline-flex";
+        this.sidebar.style.width = window.innerWidth + "px";
+        this.sidebar.style.height = window.innerHeight*.1 + "px";
         
-        tile_container.style.width = this.tileSize*this.tilesAcross+ "px";
-        //var tile_container_translate = ((window.innerWidth*.8) - (this.tileSize*this.tilesAcross))*.25;
-        tile_container.style.height = window.innerHeight*.8 + "px";
-        message_container.style.transform = "translate(30vw,-100vh)";
-        //tile_container.style.transform = "translate("+tile_container_translate+"px,0)";
-    } else {
-        sidebar.className = "sidebar";
-        sidebar.style.width = window.innerWidth*.3 + "px";
-        sidebar.style.height = window.innerHeight + "px";
+        this.score_container.className = "score-container hidden";
         
-        board.style.width = window.innerWidth*.7+ "px";
-        board.style.height = window.innerHeight*.8 + "px";
+        this.board.style.width = window.innerWidth+ "px";
+        this.board.style.height = window.innerHeight*.9 + "px";
         
-        tile_container.style.width = this.tileSize*this.tilesAcross+ "px";
+        this.tile_container.style.width = this.tileSize*this.tilesAcross+ "px";
         var tile_container_translate = ((window.innerWidth*.8) - (this.tileSize*this.tilesAcross))*.25;
-        tile_container.style.height = window.innerHeight*.8 + "px";
-        message_container.style.transform = "translate(30vw,-100vh)";
+        this.tile_container.style.height = window.innerHeight*.8 + "px";
+        
+        this.side_buttons.style.transform = "translate(-4vw,-1vh)";
+        this.center_buttons.style.transform = "translate(-2vw,-1vh)";
+        
+        this.message_container.style.transform = "translate(10vw,-100vh)";
+        this.tile_container.style.transform = "translate("+0+"px,0)";
+    } else {
+        
+        this.tileSize = (window.innerHeight*.9)/this.tilesUp;
+        
+        this.main_body_container.className = "main-body-container inline-flex";
+        
+        this.sidebar.className = "sidebar-container";
+        this.sidebar.style.width = window.innerWidth*.3 + "px";
+        this.sidebar.style.height = window.innerHeight + "px";
+        
+        this.score_container.className = "score-container";
+        
+        this.board.style.width = window.innerWidth*.7+ "px";
+        this.board.style.height = window.innerHeight*.8 + "px";
+        
+        this.tile_container.style.width = this.tileSize*this.tilesAcross+ "px";
+        var tile_container_translate = ((window.innerWidth*.8) - (this.tileSize*this.tilesAcross))*.25;
+        this.tile_container.style.height = window.innerHeight*.8 + "px";
+        
+        this.side_buttons.style.transform = "translate(2vw,-1vh)";
+        this.center_buttons.style.transform = "translate(10vw,-1vh)";
+        
+        this.message_container.style.transform = "translate(30vw,-100vh)";
         //tile_container.style.transform = "translate("+tile_container_translate+"px,0)";
     }
-    
 }
 
 // Represent the current game as an object

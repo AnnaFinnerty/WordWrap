@@ -64,9 +64,11 @@ Tile.prototype.updateActive = function (active) {
   this.active = active;
 };
 
+/*
 Tile.prototype.updateHighlight = function (highlight) {
   this.highlighted = highlight;
 };
+*/
 
 Tile.prototype.serialize = function(){
     return{

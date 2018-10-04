@@ -1,5 +1,6 @@
 function HTMLActuator(){
     this.levelUp = false;
+    this.sidebarHidden = false;
     var self = this;
     this.events = {};
     this.tile_container = document.querySelector('.tile-container');
@@ -11,6 +12,7 @@ function HTMLActuator(){
     this.message_container.addEventListener("click",function(){
         self.click();
     })
+    this.message_button_container = null;
     this.current_level = document.querySelector('.current-level');
     this.level_score = document.querySelector('.level-score');
     this.best_word = document.querySelector('.best-word');
@@ -20,8 +22,8 @@ function HTMLActuator(){
     this.top_score = document.querySelector('.top-score');
     this.word_list = document.querySelector('.word-list');
     this.shake_bar = document.querySelector('.shake-bar');
-    this.score = 0;
-    this.tileSize = window.innerHeight/10;
+    //this.score = 0;
+    //this.tileSize = window.innerHeight/10;
 }
 
 HTMLActuator.prototype.actuate = function(grid,data,tileSize){
@@ -52,7 +54,13 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
             } else {
                 text = "NEXT LEVEL"
             }
+            self.addButtonContainer();
             self.addButton(self.message_container,text,"start");
+        }
+        if(data.gameOver){
+            self.addButtonContainer();
+            self.addButton(self.message_container,"New Challenge","new_challenge");
+            self.addButton(self.message_container,"New Puzzle","new_puzzle");
         }
         self.message_container.className = message_container_showing + message_container_length;
         //remove for pics!
@@ -67,9 +75,17 @@ HTMLActuator.prototype.actuate = function(grid,data,tileSize){
 }
 
 HTMLActuator.prototype.clearContainer = function(container){
+    this.message_button_container = null;
     while(container.firstChild){
         container.removeChild(container.firstChild);
     }
+}
+
+HTMLActuator.prototype.addButtonContainer = function(){
+    var container = document.createElement("Div");
+    container.className = "message-button-container";
+    this.message_container.appendChild(container);
+    this.message_button_container = document.querySelector(".message-button-container")
 }
 
 HTMLActuator.prototype.addButton = function(container, text, emit){
@@ -77,7 +93,7 @@ HTMLActuator.prototype.addButton = function(container, text, emit){
         button.innerHTML = text;
         button.className = "message-button";
         button.id = "message_button_"+emit;
-    container.appendChild(button);
+    this.message_button_container.appendChild(button);
     var self = this;
     var added_button = document.querySelector("#message_button_"+emit);
         added_button.addEventListener("click",function(){
@@ -93,9 +109,9 @@ HTMLActuator.prototype.addTile = function(tile, tileSize){
     //console.log(position);
     var value = " value"+tile.points;
     var falling = tile.falling ? " falling" : "";
-    var selected = tile.selected ? " selected" : "";
-    var active = tile.active ? " active" : "";
-    wrapper.className = "tile" + value + selected + active + falling;
+    var selected = tile.selected ? "selected" : "";
+    var active = tile.active ? "active" : "";
+    wrapper.className = "tile " + selected + active + falling + value;
     wrapper.id = "tile"+tile.x + "-" + tile.y;
     inner.className = "letter";
     inner.innerHTML = tile.value;

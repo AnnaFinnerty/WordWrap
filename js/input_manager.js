@@ -47,6 +47,8 @@ InputManager.prototype.listen = function(){
     this.bindButtonPress(".new-puzzle-button",this.newPuzzle);
     this.bindButtonPress(".arrow-right",this.shiftRight);
     this.bindButtonPress(".arrow-left",this.shiftLeft);
+    this.bindButtonPress(".help-button",this.showInstructions);
+    this.bindButtonPress(".key-button",this.showKeys);
     
     // Respond to direction keys
     document.addEventListener("keydown", function (event) {
@@ -132,6 +134,16 @@ InputManager.prototype.newChallenge = function(){
 InputManager.prototype.newPuzzle = function(){
     event.preventDefault();
    this.emit("newPuzzle");
+}
+
+InputManager.prototype.showInstructions = function(){
+    event.preventDefault();
+   this.emit("showInstructions");
+}
+
+InputManager.prototype.showKeys = function(){
+    event.preventDefault();
+   this.emit("showKeys");
 }
 
 InputManager.prototype.bindButtonPress = function(selector,fn){
