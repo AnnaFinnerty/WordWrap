@@ -10,7 +10,7 @@
     <link rel="icon" type="image/x-icon" href="icon.ico" />
 </head>
 <body>
-   <div class="main-body-container">
+   <div class="main-body-container inline-flex">
         <div class="sidebar-container">
             <div class="title-container">
                  <h1 class="title">WORD/</h1>
@@ -48,8 +48,6 @@
                    <div class="top-score">0</div>
                </div>
             </div>
-            
-         
         </div>
 
         <div class="game-container">
@@ -67,10 +65,16 @@
         </div>
     </div>
     <div class="footer">
-       <div class="footer-buttons">
-            <button class="pause-button">Pause</button>
-            <button class="submit-button">SUBMIT</button>
-            <button class="shake-button">Shake</button>
+       <div class="footer-buttons inline-flex">
+           <div class="side-buttons inline-flex">
+               <button class="key-button"><span class="glyphicons glyphicons-keyboard-wireless"></span></button>
+               <button class="help-button"><span class="glyphicons glyphicons-question-sign"></span></button>
+           </div>
+            <div class="center-buttons inline-flex">
+                <button class="pause-button">Pause</button>
+                <button class="submit-button">SUBMIT</button>
+                <button class="shake-button">Shake</button>
+            </div>
        </div>
         
         <!--

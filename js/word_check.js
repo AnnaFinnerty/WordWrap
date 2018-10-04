@@ -29,6 +29,7 @@ WordCheck.prototype.checkWord = function(word){
 }
 
 WordCheck.prototype.APIcheck = function(word){
+    console.log("checking API");
     var self = this;
     // Necessary to bypass the 'Access-Control-Allow-Origin' error
     const proxyURL = "https://cors.io/?"; 
@@ -51,8 +52,10 @@ WordCheck.prototype.APIcheck = function(word){
         })
         
     } catch(err){
+        console.log("error with API");
         response = -1;
     } 
+    console.log(response);
     return response
 }
 

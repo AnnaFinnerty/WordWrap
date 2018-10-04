@@ -4,17 +4,33 @@ body {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: lightblue;
     display: block;
     font-family: "Montserrat", Arial, sans-serif;
     font-size: 4vh;
     text-align: center;
+    background: beige;
+}
+
+.main-body-container{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 95vh;
+    margin: 0;
+    padding: 0;
 }
 
 button{
     background: white;
     color: dodgerblue;
     border: none;
+}
+
+.key-button,.help-button{
+    font-size: 2vh;
+    border-radius: 20vw;
+    border: 2px solid deepskyblue;
+    margin-top: -1vh;
 }
 
 .submit-button{
@@ -24,9 +40,7 @@ button{
     color: beige;
     border: 3px solid beige;
     background: orangered;
-    transform: translate(15vw,0);
 }
-
 
 
 .pause-button, .shake-button{
@@ -34,7 +48,6 @@ button{
     border-radius: 3vw;
     border: 2px solid navy;
     margin-top: -1vh;
-    transform: translate(15vw,0);
 }
 
 .shake-counter{
@@ -51,29 +64,19 @@ button{
     background: orangered;
 }
 
-.main-body-container{
-    margin: 0;
-    padding: 0;
-    display: inline-flex;
-    flex-wrap: nowrap;
-    width: 100%;
-    height: 95vh;
-    margin: 0;
-    padding: 0;
-}
-
+/*LOGO*/
 h1:first-child{
     color: deepskyblue;
     margin-bottom: 0px;
-    font-size: 8vh;
+    font-size: 6vw;
 }
 
 h1:last-child{
-    margin-top: -3vh;
+    margin-top: -3vw;
     margin-left: -1vw;
     color: navy;
-    font-size: 8vh;
-    margin-bottom: 3vh;
+    font-size: 6vw;
+    margin-bottom: 3vw;
 }
 
 .new-challenge-button, .new-puzzle-button{
@@ -81,6 +84,15 @@ h1:last-child{
     margin: 1vw;
     border-radius: 10px;
     border: 2px solid navy;
+}
+
+.new-challenge-button:hover, .new-puzzle-button:hover{
+    color: orangered;
+    border: 2px solid orangered;
+}
+
+.sidebar-container,.topbar-container{
+    background: lightblue;
 }
 
 .info-box{
@@ -104,7 +116,6 @@ h1:last-child{
 }
 
 .header{
-    position: absolute;
     background: gray;
     width: 100%;
     height: 15vh;
@@ -117,12 +128,12 @@ h1:last-child{
 }
 
 .board-container{
-    position: absolute;
     display: inline-flex;
     flex-direction: row;
     flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
     top: 15vh;
-    background: beige;
 }
 
 .arrow-right,.arrow-left{
@@ -171,15 +182,16 @@ h1:last-child{
 }
 
 .active{
+    background: cyan;
+}
+
+.selectedactive{
     background: orangered;
+    color: navy;
 }
 
 .falling{
     opacity: .6;
-}
-
-.letter{
-    width: 100%;
 }
 
 .footer{
@@ -209,7 +221,7 @@ h1:last-child{
 
 .long{
     height: 60vh;
-    font-size: 3vw;
+    font-size: 3.3vw;
     text-align: left;
 }
 
@@ -223,12 +235,20 @@ h1:last-child{
     display: none;
 }
 
+.message-button-container{
+    display: inline-flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
 .message-button{
     font-size: 3vh;
     border-radius: 3vw;
     border: 2px solid navy;
-    margin-top: -1vh;
     transform: translate(0vw,0vh);
+    margin: 1vw;
 }
 
 .message-button:hover{
